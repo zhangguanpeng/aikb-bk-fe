@@ -1,0 +1,235 @@
+import { getCustomQaData, addCustomQa, updateCustomQa, deleteCustomQa } from '@/services/aikb/api';
+import { Form, Select, Button, Modal, Input, message, Space, Table, Tag } from 'antd';
+import { PlusOutlined } from '@ant-design/icons';
+import type { ColumnsType } from 'antd/es/table';
+import React, { useState, useEffect } from 'react';
+import type { FormInstance } from 'antd/es/form';
+import './index.less';
+
+interface DataType {
+	key: string;
+	name: string;
+	age: number;
+	address: string;
+	tags: string[];
+}
+
+const CustomQA: React.FC = () => {
+	const formRef = React.useRef<FormInstance>(null);
+	const [formInModal] = Form.useForm();
+	const [queryForm] = Form.useForm();
+	const [qaModalShow, setQaModalShow] = useState(false);
+	const [actionType, setActionType] = useState('add');
+	const [currentPage, setCurrentPage] = useState(1);
+	const [qaData, setQaData] = useState([]);
+	const [total, setTotal] = useState(0);
+	const [currentRecord, setCurrentRecord] = useState({});
+
+	const handleUpdateQa = (action: string, record: any) => {
+		const initFormValues = {
+			question: action === 'add' ? '' : record.question,
+			answer: action === 'add' ? '' : record.answer
+		};
+		formInModal.setFieldsValue(initFormValues);
+		setActionType(action);
+		setQaModalShow(true);
+		if (action === 'edit') {
+			setCurrentRecord(record);
+		}
+	}
+
+	const fetchQaData = (pageInfo: any) => {
+		const queryParams = queryForm.getFieldsValue();
+		const params = {
+			id: '',
+			question: queryParams ? queryParams.questionDesc : '',
+			answer: '',
+			...pageInfo,
+			sort: 'createdDate,desc'
+		};
+
+		getCustomQaData(params).then(res => {
+			console.log('定制QAres', res);
+			setQaData(res.payload);
+			setTotal(res.totalElements);
+		}).catch((error) => {
+			console.log(error);
+		});
+	}
+
+	const handleDeleteQa = (id: string) => {
+		deleteCustomQa(id).then(() => {
+			message.success('删除成功');
+			const pageInfo = {
+				page: 1,
+				size: 10,
+			};
+			fetchQaData(pageInfo);
+		}).catch(() => {
+			message.error('删除失败');
+		});
+	};
+
+	const columns: ColumnsType<DataType> = [
+		{
+			title: '问题描述',
+			dataIndex: 'question',
+			key: 'name',
+			// render: (text) => <a>{text}</a>,
+		},
+		{
+			title: '回答',
+			dataIndex: 'answer',
+			key: 'answer',
+		},
+		{
+			title: '操作',
+			key: 'action',
+			render: (_, record: any) => (
+				<Space size="middle">
+					<a onClick={() => { handleUpdateQa('edit', record); }}>编辑</a>
+					<a onClick={() => { handleDeleteQa(record.id); }}>删除</a>
+				</Space>
+			),
+		},
+	];
+
+	useEffect(() => {
+		const pageInfo = {
+			page: 1,
+			size: 10,
+		};
+		fetchQaData(pageInfo);
+	}, []);
+
+	const handleAddQaOk = () => {
+		console.log('formInModal value', formInModal.getFieldsValue());
+		const {question, answer} = formInModal.getFieldsValue();
+		const params = {
+			question,
+			answer
+		};
+
+		const { id = '' } = currentRecord;
+
+		if (actionType === 'add') {
+			addCustomQa(params).then(res => {
+				console.log('定制QAres', res);
+				message.success('添加成功');
+				setQaModalShow(false);
+				const pageInfo = {
+					page: 1,
+					size: 10,
+				};
+				fetchQaData(pageInfo);
+			}).catch((error) => {
+				console.log(error);
+			});
+		} else {
+			updateCustomQa(id, params).then(res => {
+				console.log('定制QAres', res);
+				message.success('添加成功');
+				setQaModalShow(false);
+				const pageInfo = {
+					page: 1,
+					size: 10,
+				};
+				fetchQaData(pageInfo);
+			}).catch((error) => {
+				console.log(error);
+			});
+		}
+	}
+
+	const handlePageChange = (page: number) => {
+		console.log(page);
+		setCurrentPage(page);
+		const pageInfo = {
+			page,
+			size: 10,
+		};
+		fetchQaData(pageInfo);
+	};
+
+
+	const onQueryFinish = (values: any) => {
+		console.log(values);
+		const pageInfo = {
+			page: 1,
+			size: 10,
+		};
+		fetchQaData(pageInfo);
+	};
+
+	return (
+		<div className="customqa-page">
+			<h1>定制QA</h1>
+			<div className="common-box query-box">
+				<Form
+					// {...formItemLayout}
+					layout="inline"
+					ref={formRef}
+					form={queryForm}
+					name="control-ref"
+					onFinish={onQueryFinish}
+				>
+					<Form.Item name="questionDesc" label="问题描述">
+						<Input />
+					</Form.Item>
+					<Form.Item>
+						<Button type="primary" htmlType="submit">
+							查询
+						</Button>
+						{/* <Button htmlType="button" onClick={onReset}>
+							Reset
+						</Button> */}
+					</Form.Item>
+				</Form>
+			</div>
+			<div className="btn-box">
+				<Button type="link"
+					icon={<PlusOutlined />}
+					onClick={() => { handleUpdateQa('add', null); }}
+				>
+					添加问答
+				</Button>
+			</div>
+			<div className="common-box">
+				<Table
+					columns={columns}
+					dataSource={qaData}
+					rowKey={(record: any) => record.id}
+					pagination={{
+						showSizeChanger: true,
+						onChange: handlePageChange,
+						current: currentPage,
+						total,
+					}}
+				/>
+			</div>
+			<Modal
+				title={actionType === 'add' ? '增加问答' : '修改问答'}
+				open={qaModalShow}
+				onCancel={() => { setQaModalShow(false); }}
+				onOk={handleAddQaOk}
+			>
+				<div style={{ paddingTop: '10px' }}>
+					<Form
+						form={formInModal}
+						name="control-ref"
+						// onFinish={onAddQaFinish}
+					>
+						<Form.Item name="question" label="问题">
+							<Input.TextArea />
+						</Form.Item>
+						<Form.Item name="answer" label="回答">
+							<Input.TextArea />
+						</Form.Item>
+					</Form>
+				</div>
+			</Modal>
+		</div>
+	);
+};
+
+export default CustomQA;
