@@ -117,7 +117,10 @@ const Login: React.FC = () => {
 	const handleSubmit = async (values: API.LoginParams) => {
 		try {
 			// 登录
-			const msg = await login({ ...values, type });
+			// const msg = await login({ ...values, type });
+			const msg = {
+				status: 'ok',
+			};
 			if (msg.status === 'ok') {
 				const defaultLoginSuccessMessage = intl.formatMessage({
 					id: 'pages.login.success',
@@ -127,6 +130,7 @@ const Login: React.FC = () => {
 				await fetchUserInfo();
 				const urlParams = new URL(window.location.href).searchParams;
 				history.push(urlParams.get('redirect') || '/');
+				// history.push('/categorylist');
 				return;
 			}
 			console.log(msg);
@@ -353,13 +357,13 @@ const Login: React.FC = () => {
 						<ProFormCheckbox noStyle name="autoLogin">
 							<FormattedMessage id="pages.login.rememberMe" defaultMessage="自动登录" />
 						</ProFormCheckbox>
-						<a
+						{/* <a
 							style={{
 								float: 'right',
 							}}
 						>
 							<FormattedMessage id="pages.login.forgotPassword" defaultMessage="忘记密码" />
-						</a>
+						</a> */}
 					</div>
 				</LoginForm>
 			</div>
