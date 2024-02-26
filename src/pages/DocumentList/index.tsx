@@ -107,12 +107,12 @@ const DocumentList: React.FC = () => {
 		multiple: false,
 	};
 
-	const handlePageChange = (page: number) => {
+	const handlePageChange = (page: number, pageSize: number) => {
 		console.log(page);
 		setCurrentPage(page);
 		const pageInfo = {
 			page,
-			size: 10,
+			size: pageSize,
 		};
 		fetchDocumentData(pageInfo, null);
 	};
@@ -178,39 +178,46 @@ const DocumentList: React.FC = () => {
 			title: '文档名称',
 			dataIndex: 'name',
 			key: 'name',
+			width: 400,
 			render: (text) => <a>{text}</a>,
 		},
 		{
 			title: '类目名称',
 			dataIndex: 'category',
 			key: 'category',
+			width: 90,
 			render: (_, record) => (
 				<span>{record.category.name}</span>
 			),
 		},
 		{
-			title: '分片状态',
+			title: '分片数',
 			dataIndex: 'splitCount',
 			key: 'splitCount',
+			width: 90,
 		},
 		{
-			title: '分片数',
+			title: '分片状态',
 			dataIndex: 'splitStatus',
 			key: 'splitStatus',
+			width: 90,
 		},
 		{
 			title: '文件大小',
-			dataIndex: 'number',
-			key: 'number',
+			dataIndex: 'fileSize',
+			key: 'fileSize',
+			width: 90,
 		},
 		{
 			title: '创建时间',
 			dataIndex: 'createdAt',
 			key: 'createdAt',
+			width: 180,
 		},
 		{
 			title: '操作',
 			key: 'action',
+			width: 100,
 			render: (_, record) => (
 				<>
 					<Space size="middle">
@@ -283,14 +290,20 @@ const DocumentList: React.FC = () => {
 			</div>
 			<div className="common-box">
 				<Table
+					bordered
 					columns={columns}
 					dataSource={documentData}
 					rowKey={(record: any) => record.id}
 					pagination={{
+						showTotal: () => { return `共有${total}条数据`; },
 						showSizeChanger: true,
 						onChange: handlePageChange,
+						onShowSizeChange: handlePageChange,
 						current: currentPage,
-						total,
+						total
+					}}
+					scroll={{
+						x: true,
 					}}
 				/>
 			</div>

@@ -21,7 +21,7 @@ export default {
       changeOrigin: true,
     },
     '/aikb/': {
-      target: 'https://37bc-8-217-23-96.ngrok.io',
+      target: 'http://ais.fxincen.top:8090',
       changeOrigin: true,
       pathRewrite: { '^': '' },
     },

@@ -139,7 +139,7 @@ const CategoryList: React.FC = () => {
 	const treeData = useMemo(() => {
 		const loop = (data: DataNode[]): DataNode[] =>
 			data.map((item) => {
-				const strTitle = item.title as string;
+				const strTitle = item.title as string || '';
 				const index = strTitle.indexOf(searchValue);
 				const beforeStr = strTitle.substring(0, index);
 				const afterStr = strTitle.slice(index + searchValue.length);
