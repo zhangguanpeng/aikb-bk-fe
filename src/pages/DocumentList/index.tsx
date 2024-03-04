@@ -79,32 +79,52 @@ const DocumentList: React.FC = () => {
 
 	const props: UploadProps = {
 		name: 'file',
-		onChange(info) {
-			if (info.file.status !== 'uploading') {
-				console.log(info.file, info.fileList);
-			}
+		// action: '/aikb/v1/doc/upload',
+		// onChange(info) {
+		// 	if (info.file.status !== 'uploading') {
+		// 		console.log(info.file, info.fileList);
+		// 	}
 			
-			if (info.file.status === 'done') {
-				const params = {
-					categoryId: 1,
-					documentList: info.fileList[0].originFileObj,
+		// 	if (info.file.status === 'done') {
+		// 		const params = {
+		// 			categoryId: 1,
+		// 			documentList: info.fileList[0].originFileObj,
+		// 		};
+		// 		uploadDocument(params).then(() => {
+		// 			message.success(`${info.file.name} 上传成功`);
+		// 			const pageInfo = {
+		// 				page: 1,
+		// 				size: 10,
+		// 			};
+		// 			fetchDocumentData(pageInfo, null);
+		// 		}).catch(() => {
+		// 			message.error(`${info.file.name} 上传失败.`);
+		// 		});
+		// 	} else if (info.file.status === 'error') {
+		// 		message.error(`${info.file.name} 上传失败.`);
+		// 	}
+		// },
+		customRequest(info: any) {
+			console.log('upload info', info);
+
+			const params = {
+				categoryId: selectedCategory,
+				documentList: info.file,
+			};
+			uploadDocument(params).then(() => {
+				message.success(`${info.file.name} 上传成功`);
+				const pageInfo = {
+					page: 1,
+					size: 10,
 				};
-				uploadDocument(params).then(() => {
-					message.success(`${info.file.name} 上传成功`);
-					const pageInfo = {
-						page: 1,
-						size: 10,
-					};
-					fetchDocumentData(pageInfo, null);
-				}).catch(() => {
-					message.error(`${info.file.name} 上传失败.`);
-				});
-			} else if (info.file.status === 'error') {
+				fetchDocumentData(pageInfo, null);
+			}).catch(() => {
 				message.error(`${info.file.name} 上传失败.`);
-			}
+			});
 		},
+		maxCount: 50,
 		showUploadList: false,
-		multiple: false,
+		multiple: true,
 	};
 
 	const handlePageChange = (page: number, pageSize: number) => {
@@ -178,7 +198,7 @@ const DocumentList: React.FC = () => {
 			title: '文档名称',
 			dataIndex: 'name',
 			key: 'name',
-			width: 400,
+			width: 350,
 			render: (text) => <a>{text}</a>,
 		},
 		{
@@ -263,7 +283,7 @@ const DocumentList: React.FC = () => {
 							showSearch
 							// style={{ width: 166, marginRight: 40 }}
 							value={selectedCategory}
-							dropdownStyle={{ maxHeight: 400, overflow: 'auto' }}
+							dropdownStyle={{ maxHeight: 400, overflow: 'auto', width: 'auto' }}
 							placeholder="请选择"
 							allowClear
 							treeDefaultExpandAll

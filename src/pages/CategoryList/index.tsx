@@ -70,7 +70,7 @@ const arrayToTreeLoop = (nodes: any[]) => {
 
 	for (const node of nodes) {
 		//@ts-ignore
-		map[node.id] = { key: node.id, title: node.name, parentId: node.parentId, children: [] };
+		map[node.id] = { key: node.id, title: node.name || '根结点', parentId: node.parentId || '', children: [] };
 	}
 
 	console.log('node map', map);
@@ -124,7 +124,7 @@ const CategoryList: React.FC = () => {
 	const onFinish = (values: any) => {
 		console.log(values);
 
-		const { categoryName } = values;
+		const { categoryName = '' } = values;
 		const newExpandedKeys = dataList.map((item) => {
 			if (item.title.indexOf(categoryName) > -1) {
 				return getParentKey(item.key, defaultData);

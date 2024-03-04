@@ -20,6 +20,7 @@ yarn.lock
 package-lock.json
 *bak
 .vscode
+*.zip
 
 
 # visual studio code

@@ -77,7 +77,7 @@ const ChatTest: React.FC = () => {
 						showSearch
 						// style={{ width: 166, marginRight: 40 }}
 						value={selectedCategory}
-						dropdownStyle={{ maxHeight: 400, overflow: 'auto' }}
+						dropdownStyle={{ maxHeight: 400, overflow: 'auto', width: 'auto' }}
 						placeholder="请选择"
 						allowClear
 						treeDefaultExpandAll
