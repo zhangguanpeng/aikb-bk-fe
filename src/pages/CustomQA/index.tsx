@@ -88,7 +88,7 @@ const CustomQA: React.FC = () => {
 			render: (_, record: any) => (
 				<Space size="middle">
 					<a onClick={() => { handleUpdateQa('edit', record); }}>编辑</a>
-					<a onClick={() => { handleDeleteQa(record.id); }}>删除</a>
+					<a style={{ color: 'red' }} onClick={() => { handleDeleteQa(record.id); }}>删除</a>
 				</Space>
 			),
 		},
@@ -141,12 +141,12 @@ const CustomQA: React.FC = () => {
 		}
 	}
 
-	const handlePageChange = (page: number) => {
+	const handlePageChange = (page: number, pageSize: number) => {
 		console.log(page);
 		setCurrentPage(page);
 		const pageInfo = {
 			page,
-			size: 10,
+			size: pageSize,
 		};
 		fetchQaData(pageInfo);
 	};
@@ -174,7 +174,7 @@ const CustomQA: React.FC = () => {
 					onFinish={onQueryFinish}
 				>
 					<Form.Item name="questionDesc" label="问题描述">
-						<Input />
+						<Input style={{ width: 200 }} />
 					</Form.Item>
 					<Form.Item>
 						<Button type="primary" htmlType="submit">
@@ -200,8 +200,10 @@ const CustomQA: React.FC = () => {
 					dataSource={qaData}
 					rowKey={(record: any) => record.id}
 					pagination={{
+						showTotal: () => { return `共有${total}条数据`; },
 						showSizeChanger: true,
 						onChange: handlePageChange,
+						onShowSizeChange: handlePageChange,
 						current: currentPage,
 						total,
 					}}

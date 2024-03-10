@@ -264,7 +264,7 @@ const CategoryList: React.FC = () => {
 					onFinish={onFinish}
 				>
 					<Form.Item name="categoryName" label="类目名称">
-						<Input />
+						<Input style={{ width: 200 }} />
 					</Form.Item>
 					<Form.Item>
 						<Button type="primary" htmlType="submit">

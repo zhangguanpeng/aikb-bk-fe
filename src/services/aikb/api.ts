@@ -81,7 +81,7 @@ export async function downloadDocument(id: string) {
 /** 文本搜索 GET /aikb/v1/search */
 export async function getTextData(params: any) {
 	return request('/aikb/v1/search', {
-		method: 'GET',
+		method: 'POST',
 		headers: {
 			'Content-Type': 'application/json',
 		},

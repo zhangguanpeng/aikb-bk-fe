@@ -30,7 +30,7 @@ interface DataType {
 	}
 }
 
-const formItemLayout = { labelCol: { span: 8 }, wrapperCol: { span: 16 } };
+const formItemLayout = { labelCol: { span: 4 }, wrapperCol: { span: 14 } };
 
 const DocumentList: React.FC = () => {
 	const formRef = React.useRef<FormInstance>(null);
@@ -163,12 +163,6 @@ const DocumentList: React.FC = () => {
 	}
 
 	const handleDownloadFile = (id: string) => {
-		// downloadDocument(id).then((res) => {
-		// 	downloadFile(res, '文件');
-		// 	message.success('文件下载成功');
-		// }).catch(() => {
-		// 	message.error('文件下载失败');
-		// });
 		downloadFile(`/aikb/v1/doc/download?id=${id}`);
 	}
 
@@ -207,7 +201,7 @@ const DocumentList: React.FC = () => {
 			key: 'category',
 			width: 90,
 			render: (_, record) => (
-				<span>{record.category.name}</span>
+				<span>{record.category.name || '根节点'}</span>
 			),
 		},
 		{
@@ -268,7 +262,7 @@ const DocumentList: React.FC = () => {
 			<h1>文档管理</h1>
 			<div className="common-box query-box">
 				<Form
-					{...formItemLayout}
+					// {...formItemLayout}
 					layout="inline"
 					ref={formRef}
 					form={form}
@@ -276,14 +270,14 @@ const DocumentList: React.FC = () => {
 					onFinish={onFinish}
 				>
 					<Form.Item name="documentName" label="文档名称">
-						<Input />
+						<Input style={{ width: 200 }} />
 					</Form.Item>
 					<Form.Item name="category" label="类目">
 						<TreeSelect
 							showSearch
-							// style={{ width: 166, marginRight: 40 }}
+							style={{ width: 200 }}
 							value={selectedCategory}
-							dropdownStyle={{ maxHeight: 400, overflow: 'auto', width: 'auto' }}
+							dropdownStyle={{ maxHeight: 400, overflow: 'auto', width: 200 }}
 							placeholder="请选择"
 							allowClear
 							treeDefaultExpandAll

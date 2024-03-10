@@ -3,27 +3,86 @@
         padding: 20px;
         border-radius: 6px;
         background-color: #FFFFFF;
+        position: relative;
+        overflow: hidden;
 
-        .mesage-box {
-            height: 380px;
+        .knowledge-content {
             border: 1px solid #d9d9d9;
             border-radius: 6px;
             margin-bottom: 5px;
-            padding: 10px;
+            display: flex;
+            flex-direction: row;
+            height: 380px;
+            line-height: 20px;
 
-            .message-item {
-                background-color: lightcyan;
+            .left {
+                flex: 1;
+                // border-right: 1px solid #d9d9d9;
+                // height: calc(100% - 90px);
                 padding: 10px;
-                margin-bottom: 10px;
-                border-radius: 10px;
+                white-space: break-spaces;
+                height: 380px;
+                overflow: auto;
             }
-            .ask-item {
-                display: flex;
-                flex-direction: row-reverse;
+
+            .right {
+                flex: 1;
+                // height: calc(100% - 90px);
+                padding: 10px;
+                height: 380px;
+                overflow: auto;
+                background-color: aliceblue;
+                border-left: 1px solid #d9d9d9;
+
+                .list-area {
+
+                    .item {
+                        border-bottom: 1px solid #d9d9d9;
+                        padding-top: 5px;
+                        padding-bottom: 5px;
+
+                        .head {
+                            // display: flex;
+                            // align-items: center;
+                            // justify-content: space-between;
+                            // height: 30px;
+                            // line-height: 30px;
+                        }
+
+                        .desc {
+                            padding-top: 10px;
+                            padding-bottom: 15px;
+                            line-height: 22px;
+                        }
+
+                        .text1 {
+                            font-weight: 500;
+                        }
+
+                        .text2 {
+                            font-size: 12px;
+                            max-height: 80px;
+                            overflow: hidden;
+                            text-overflow: ellipsis;
+                            display: -webkit-box;
+                            -webkit-box-orient: vertical;
+                            -webkit-line-clamp: 3;
+                            white-space: normal;
+                        }
+                    }
+                }
             }
-            .answer-item {
-                width: max-content;
-            }
+        }
+
+        .page-loading {
+            height: 418px;
+            position: absolute;
+            top: 19px;
+            left: 20px;
+            right: 20px;
+            background-color: rgba(0, 0, 0, 0.1);
+            padding-top: 200px;
+            border-radius: 6px;
         }
     }
 

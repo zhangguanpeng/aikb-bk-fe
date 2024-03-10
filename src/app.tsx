@@ -79,7 +79,8 @@ export async function getInitialState(): Promise<{
 // ProLayout 支持的api https://procomponents.ant.design/components/layout
 export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) => {
 	return {
-		actionsRender: () => [<Question key="doc" />, <SelectLang key="SelectLang" />],
+		// actionsRender: () => [<Question key="doc" />, <SelectLang key="SelectLang" />],
+		actionsRender: () => [],
 		avatarProps: {
 			src: initialState?.currentUser?.avatar,
 			title: <AvatarName />,
@@ -118,14 +119,15 @@ export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) =
 				width: '331px',
 			},
 		],
-		links: isDev
-			? [
-				<Link key="openapi" to="/umi/plugin/openapi" target="_blank">
-					<LinkOutlined />
-					<span>OpenAPI 文档</span>
-				</Link>,
-			]
-			: [],
+		// links: isDev
+		// 	? [
+		// 		<Link key="openapi" to="/umi/plugin/openapi" target="_blank">
+		// 			<LinkOutlined />
+		// 			<span>OpenAPI 文档</span>
+		// 		</Link>,
+		// 	]
+		// 	: [],
+		links: [],
 		menuHeaderRender: undefined,
 		// 自定义 403 页面
 		// unAccessible: <div>unAccessible</div>,
