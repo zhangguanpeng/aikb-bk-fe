@@ -76,6 +76,12 @@ export default [
 		component: './ChatTest',
 	},
 	{
+		name: 'train-list',
+		icon: 'ExperimentOutlined',
+		path: '/trainlist',
+		component: './TrainList',
+	},
+	{
 		path: '/',
 		redirect: '/welcome',
 	},

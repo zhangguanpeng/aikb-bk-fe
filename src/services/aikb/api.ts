@@ -164,6 +164,60 @@ export async function deleteCustomQa(id: string) {
 	});
 }
 
+/** 获取训练列表 GET /aikb/v1/doc */
+export async function getTrainData(params: any) {
+	return request('/aikb/v1/train', {
+		method: 'GET',
+		params: params,
+	});
+}
+
+/** 新增训练 POST /aikb/v1/qapair */
+export async function addTrain(params: any) {
+	return request('/aikb/v1/train', {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json',
+		},
+		data: params,
+	});
+}
+
+/** 删除训练 DELETE */
+export async function deleteTrain(id: string) {
+	// @ts-ignore
+	return request(`/aikb/v1/train?id=${id}`, {
+		method: 'DELETE',
+	});
+}
+
+/** 开始训练 */
+export async function startTrain(id: string) {
+	// @ts-ignore
+	return request(`/aikb/v1/train/start/${id}`, {
+		method: 'POST',
+	});
+}
+
+/** 停止训练 */
+export async function stopTrain(id: string) {
+	// @ts-ignore
+	return request(`/aikb/v1/train/stop/${id}`, {
+		method: 'PUT',
+	});
+}
+
+/** 训练文档上传 POST */
+export async function uploadTrainDocument(params: any) {
+	return request('/aikb/v1/train/file/upload', {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'multipart/form-data',
+		},
+		data: params,
+	});
+}
+
 /** 获取规则列表 GET /api/rule */
 export async function rule(
 	params: {

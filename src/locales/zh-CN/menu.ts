@@ -33,6 +33,7 @@ export default {
   'menu.list.search-list.applications': '搜索列表（应用）',
   'menu.custom-qa': '定制QA',
   'menu.dialogue-test': '对话测试',
+  'menu.train-list': '训练管理',
   'menu.profile': '详情页',
   'menu.profile.basic': '基础详情页',
   'menu.profile.advanced': '高级详情页',
