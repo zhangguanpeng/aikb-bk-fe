@@ -7,8 +7,8 @@ export const arrayToTreeLoop = (nodes: any[]) => {
 		map[node.id] = {
       key: node.id,
       value: node.id,
-      title: node.name || '根节点',
-      label: node.name || '根节点',
+      title: node.name || '默认',
+      label: node.name || '默认',
       parentId: node.parentId || '',
       children: []
     };

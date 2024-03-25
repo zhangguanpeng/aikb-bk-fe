@@ -30,7 +30,7 @@ interface DataType {
 	}
 }
 
-const formItemLayout = { labelCol: { span: 4 }, wrapperCol: { span: 14 } };
+// const formItemLayout = { labelCol: { span: 4 }, wrapperCol: { span: 14 } };
 
 const DocumentList: React.FC = () => {
 	const formRef = React.useRef<FormInstance>(null);
@@ -201,7 +201,7 @@ const DocumentList: React.FC = () => {
 			key: 'category',
 			width: 90,
 			render: (_, record) => (
-				<span>{record.category.name || '根节点'}</span>
+				<span>{record.category.name || '默认'}</span>
 			),
 		},
 		{

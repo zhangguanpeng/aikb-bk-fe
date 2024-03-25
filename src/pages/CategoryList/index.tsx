@@ -70,7 +70,7 @@ const arrayToTreeLoop = (nodes: any[]) => {
 
 	for (const node of nodes) {
 		//@ts-ignore
-		map[node.id] = { key: node.id, title: node.name || '根结点', parentId: node.parentId || '', children: [] };
+		map[node.id] = { key: node.id, title: node.name || '默认', parentId: node.parentId || '', children: [] };
 	}
 
 	console.log('node map', map);

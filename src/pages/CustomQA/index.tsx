@@ -128,7 +128,7 @@ const CustomQA: React.FC = () => {
 		} else {
 			updateCustomQa(id, params).then(res => {
 				console.log('定制QAres', res);
-				message.success('添加成功');
+				message.success('修改成功');
 				setQaModalShow(false);
 				const pageInfo = {
 					page: 1,

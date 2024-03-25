@@ -39,7 +39,8 @@ const TrainList: React.FC = () => {
 	const [documentData, setDocumentData] = useState([]);
 	const [currentPage, setCurrentPage] = useState(1);
 	const [total, setTotal] = useState(0);
-	const [fileList, setFileList] = useState([]);
+	// const [fileList, setFileList] = useState([]);
+	const [currentRecord, setCurrentRecord] = useState({});
 
 	const fetchTrainData = (pageInfo: any, formValues: any) => {
 		const {trainName = '', createTime = ''} = formValues || form.getFieldsValue();
@@ -69,47 +70,61 @@ const TrainList: React.FC = () => {
 		fetchTrainData(pageInfo, {});
 	}, []);
 
-	// const props: UploadProps = {
-	// 	name: 'file',
-	// 	// action: '/aikb/v1/doc/upload',
-	// 	customRequest(info: any) {
-	// 		console.log('upload info', info);
-
-	// 		const params = {
-	// 			fileList: [info.file],
-	// 		};
-	// 		uploadTrainDocument(params).then(() => {
-	// 			message.success(`${info.file.name} 上传成功`);
-	// 			// const pageInfo = {
-	// 			// 	page: 1,
-	// 			// 	size: 10,
-	// 			// };
-	// 			// fetchDocumentData(pageInfo, null);
-	// 		}).catch(() => {
-	// 			message.error(`${info.file.name} 上传失败.`);
-	// 		});
-	// 	},
-	// 	maxCount: 50,
-	// 	showUploadList: false,
-	// 	multiple: true,
-	// };
-
 	const uploadProps: UploadProps = {
-		onRemove: (file) => {
-			// @ts-ignore
-			const index = fileList.indexOf(file);
-			const newFileList = fileList.slice();
-			newFileList.splice(index, 1);
-			setFileList(newFileList);
-		  },
-		  beforeUpload: (file) => {
-			// @ts-ignore
-			setFileList([...fileList, file]);
-	  
-			return false;
-		  },
-		  fileList,
+		name: 'file',
+		// action: '/aikb/v1/doc/upload',
+		customRequest(info: any) {
+			console.log('upload info', info);
+
+			const params = {
+				fileList: info.file,
+			};
+			uploadTrainDocument(params).then(() => {
+				message.success(`${info.file.name} 上传成功`);
+				// const pageInfo = {
+				// 	page: 1,
+				// 	size: 10,
+				// };
+				// fetchDocumentData(pageInfo, null);
+				const documentItem = {
+					name: 11,
+					createdTime: dayjs(new Date()).format('YYYY-MM-DD HH:mm:ss'),
+					status: 'success'
+				};
+				// @ts-ignore
+				setDocumentData([...documentData, documentItem]);
+			}).catch(() => {
+				message.error(`${info.file.name} 上传失败.`);
+				const documentItem = {
+					name: info.file.name,
+					createdTime: dayjs(new Date()).format('YYYY-MM-DD HH:mm:ss'),
+					status: 'fail'
+				};
+				// @ts-ignore
+				setDocumentData([...documentData, documentItem]);
+			});
+		},
+		maxCount: 50,
+		showUploadList: false,
+		multiple: true,
 	};
+
+	// const uploadProps: UploadProps = {
+	// 	onRemove: (file) => {
+	// 		// @ts-ignore
+	// 		const index = fileList.indexOf(file);
+	// 		const newFileList = fileList.slice();
+	// 		newFileList.splice(index, 1);
+	// 		setFileList(newFileList);
+	// 	  },
+	// 	  beforeUpload: (file) => {
+	// 		// @ts-ignore
+	// 		setFileList([...fileList, file]);
+	  
+	// 		return false;
+	// 	  },
+	// 	  fileList,
+	// };
 
 	const handlePageChange = (page: number, pageSize: number) => {
 		console.log(page);
@@ -133,6 +148,12 @@ const TrainList: React.FC = () => {
 
 	const handleDownloadTrain = (id: string) => {
 		downloadFile(`/aikb/v1/train/model/download/${id}`);
+	}
+
+	const handleEditTrain = (record: any) => {
+		setCurrentRecord(record);
+		setActionType('edit');
+		setTrainModalShow(true);
 	}
 
 	// const handleDeleteFile = (id: string) => {
@@ -187,6 +208,30 @@ const TrainList: React.FC = () => {
 		});
 	};
 
+	const handleDeleteDocument = (id: number) => {
+		for (let i = 0; i < documentData.length; i++) {
+			// @ts-ignore
+			if (documentData[i].id === id) {
+				documentData.splice(i, 1);
+			}
+		}
+		setDocumentData([...documentData]);
+	}
+
+	const handleUpdateTrain = (action: string, record: any) => {
+		const { parameter = {} } = record;
+		const initFormValues = {
+			trainName: action === 'add' ? '' : record.name,
+			epochNumber: action === 'add' ? '' : parameter.epochNumber
+		};
+		formInModal.setFieldsValue(initFormValues);
+		setActionType(action);
+		setTrainModalShow(true);
+		// if (action === 'edit') {
+		// 	setCurrentRecord(record);
+		// }
+	}
+
 	const columns: ColumnsType<DataType> = [
 		{
 			title: '训练名称',
@@ -201,7 +246,7 @@ const TrainList: React.FC = () => {
 			key: 'category',
 			width: 90,
 			render: (_, record: any) => (
-				<span>{record.status || '根节点'}</span>
+				<span>{record.status || '默认'}</span>
 			),
 		},
 		{
@@ -226,7 +271,7 @@ const TrainList: React.FC = () => {
 						}
 					</Space>
 					<Space size="middle">
-						<a onClick={() => { handleDeleteTrain(record.id); }} style={{ paddingLeft: '10px' }}>编辑</a>
+						<a onClick={() => { handleUpdateTrain('edit', record); }} style={{ paddingLeft: '10px' }}>编辑</a>
 					</Space>
 					<Space size="middle">
 						<a onClick={() => { handleDownloadTrain(record.id); }} style={{ paddingLeft: '10px' }}>下载</a>
@@ -249,8 +294,8 @@ const TrainList: React.FC = () => {
 		},
 		{
 			title: '创建时间',
-			dataIndex: 'createdAt',
-			key: 'createdAt',
+			dataIndex: 'createdTime',
+			key: 'createdTime',
 			width: 180,
 		},
 		{
@@ -259,7 +304,7 @@ const TrainList: React.FC = () => {
 			key: 'category',
 			width: 150,
 			render: (_, record: any) => (
-				<span>{record.status || '根节点'}</span>
+				<span>{record.status || '默认'}</span>
 			),
 		},
 		{
@@ -269,7 +314,7 @@ const TrainList: React.FC = () => {
 			render: (_, record: any) => (
 				<>
 					<Space size="middle">
-						<a onClick={() => { handleDeleteTrain(record.id); }} style={{ color: 'red', paddingLeft: '10px' }}>删除</a>
+						<a onClick={() => { handleDeleteDocument(record.id); }} style={{ color: 'red', paddingLeft: '10px' }}>删除</a>
 					</Space>
 				</>
 			),
@@ -283,19 +328,6 @@ const TrainList: React.FC = () => {
 		};
 		fetchTrainData(pageInfo, formValues);
 	};
-
-	const handleUpdateTrain = (action: string, record: any) => {
-		const initFormValues = {
-			question: action === 'add' ? '' : record.question,
-			answer: action === 'add' ? '' : record.answer
-		};
-		formInModal.setFieldsValue(initFormValues);
-		setActionType(action);
-		setTrainModalShow(true);
-		// if (action === 'edit') {
-		// 	setCurrentRecord(record);
-		// }
-	}
 
 	const handleAddTrainOk = () => {
 		console.log('formInModal value', formInModal.getFieldsValue());
@@ -314,10 +346,12 @@ const TrainList: React.FC = () => {
 				console.log('新建训练res', res);
 				message.success('新建训练成功');
 				setTrainModalShow(false);
+				setDocumentData([]);
 				const pageInfo = {
 					page: 1,
 					size: 10,
 				};
+				formInModal.resetFields();
 				fetchTrainData(pageInfo, null);
 			}).catch((error) => {
 				console.log(error);
@@ -325,29 +359,33 @@ const TrainList: React.FC = () => {
 		} else {
 			// updateCustomQa(id, params).then(res => {
 			// 	console.log('定制QAres', res);
-			// 	message.success('添加成功');
-			// 	setQaModalShow(false);
-			// 	const pageInfo = {
-			// 		page: 1,
-			// 		size: 10,
-			// 	};
-			// 	fetchQaData(pageInfo);
+				message.success('修改训练成功');
+				setTrainModalShow(false);
+				setDocumentData([]);
+				const pageInfo = {
+					page: 1,
+					size: 10,
+				};
+				formInModal.resetFields();
+				fetchTrainData(pageInfo, null);
 			// }).catch((error) => {
 			// 	console.log(error);
 			// });
 		}
 	}
 
-	const startUpload = () => {
-		const params = {
-			fileList
-		};
-		uploadTrainDocument(params).then(() => {
-			//
-		}).catch(error => {
-			console.log('上传文件失败', error);
-		});
-	}
+	// const startUpload = () => {
+	// 	const params = {
+	// 		fileList: fileList[0],
+	// 	};
+	// 	uploadTrainDocument(params).then(() => {
+	// 		//
+	// 	}).catch(error => {
+	// 		console.log('上传文件失败', error);
+	// 	});
+	// }
+
+	const modalTableData = actionType === 'add' ? documentData : currentRecord.files;
 
 	return (
 		<div className="category-page">
@@ -428,32 +466,34 @@ const TrainList: React.FC = () => {
 								<Button type="link" icon={<UploadOutlined />}>
 									选择文档
 								</Button>
-								{
-									fileList.length > 0 && (
-										<Button type="primary" size='small' onClick={startUpload}>
-											开始上传
-										</Button>
-									)
-								}
 							</Upload>
+							{/* {
+								fileList.length > 0 && (
+									<Button type="primary" size='small' onClick={startUpload} className='upload-btn'>
+										开始上传
+									</Button>
+								)
+							} */}
 						</div>
-						<Table
-							bordered
-							columns={modalColumns}
-							dataSource={documentData}
-							rowKey={(record: any) => record.id}
-							pagination={{
-								showTotal: () => { return `共有${total}条数据`; },
-								showSizeChanger: true,
-								onChange: handlePageChange,
-								onShowSizeChange: handlePageChange,
-								current: currentPage,
-								total
-							}}
-							scroll={{
-								x: true,
-							}}
-						/>
+						<div className='table-area'>
+							<Table
+								bordered
+								columns={modalColumns}
+								dataSource={modalTableData}
+								rowKey={(record: any) => record.id}
+								// pagination={{
+								// 	showTotal: () => { return `共有${total}条数据`; },
+								// 	showSizeChanger: true,
+								// 	onChange: handlePageChange,
+								// 	onShowSizeChange: handlePageChange,
+								// 	current: currentPage,
+								// 	total
+								// }}
+								scroll={{
+									x: true,
+								}}
+							/>
+						</div>
 						<Form.Item name="epochNumber" label="训练轮数">
 							<InputNumber placeholder='请输入训练轮数' />
 						</Form.Item>
