@@ -11,83 +11,83 @@
  * @doc https://umijs.org/docs/guides/routes
  */
 export default [
-	{
-		path: '/user',
-		layout: false,
-		routes: [
-			{
-				name: 'login',
-				path: '/user/login',
-				component: './User/Login',
-			},
-		],
-	},
-	{
-		path: '/welcome',
-		name: 'welcome',
-		icon: 'smile',
-		component: './Welcome',
-	},
-	// {
-	// 	path: '/admin',
-	// 	name: 'admin',
-	// 	icon: 'crown',
-	// 	access: 'canAdmin',
-	// 	routes: [
-	// 		{
-	// 			path: '/admin',
-	// 			redirect: '/admin/sub-page',
-	// 		},
-	// 		{
-	// 			path: '/admin/sub-page',
-	// 			name: 'sub-page',
-	// 			component: './Admin',
-	// 		},
-	// 	],
-	// },
-	// {
-	// 	name: 'list.table-list',
-	// 	icon: 'table',
-	// 	path: '/list',
-	// 	component: './TableList',
-	// },
-	{
-		name: 'list.category-list',
-		icon: 'bars',
-		path: '/categorylist',
-		component: './CategoryList',
-	},
-	{
-		name: 'list.document-list',
-		icon: 'fileWord',
-		path: '/documentlist',
-		component: './DocumentList',
-	},
-	{
-		name: 'custom-qa',
-		icon: 'monitor',
-		path: '/customqa',
-		component: './CustomQA',
-	},
-	{
-		name: 'dialogue-test',
-		icon: 'comment',
-		path: '/dialoguetest',
-		component: './ChatTest',
-	},
-	{
-		name: 'train-list',
-		icon: 'ExperimentOutlined',
-		path: '/trainlist',
-		component: './TrainList',
-	},
-	{
-		path: '/',
-		redirect: '/welcome',
-	},
-	{
-		path: '*',
-		layout: false,
-		component: './404',
-	},
+  {
+    path: '/user',
+    layout: false,
+    routes: [
+      {
+        name: 'login',
+        path: '/user/login',
+        component: './User/Login',
+      },
+    ],
+  },
+  {
+    path: '/welcome',
+    name: 'welcome',
+    icon: 'smile',
+    component: './Welcome',
+  },
+  // {
+  // 	path: '/admin',
+  // 	name: 'admin',
+  // 	icon: 'crown',
+  // 	access: 'canAdmin',
+  // 	routes: [
+  // 		{
+  // 			path: '/admin',
+  // 			redirect: '/admin/sub-page',
+  // 		},
+  // 		{
+  // 			path: '/admin/sub-page',
+  // 			name: 'sub-page',
+  // 			component: './Admin',
+  // 		},
+  // 	],
+  // },
+  // {
+  // 	name: 'list.table-list',
+  // 	icon: 'table',
+  // 	path: '/list',
+  // 	component: './TableList',
+  // },
+  {
+    name: 'list.category-list',
+    icon: 'bars',
+    path: '/categorylist',
+    component: './CategoryList',
+  },
+  {
+    name: 'list.document-list',
+    icon: 'fileWord',
+    path: '/documentlist',
+    component: './DocumentList',
+  },
+  {
+    name: 'train-list',
+    icon: 'ExperimentOutlined',
+    path: '/trainlist',
+    component: './TrainList',
+  },
+  {
+    name: 'dialogue-test',
+    icon: 'comment',
+    path: '/dialoguetest',
+    component: './ChatTest',
+  },
+  {
+    name: 'custom-qa',
+    icon: 'monitor',
+    path: '/customqa',
+    component: './CustomQA',
+  },
+  {
+    path: '/',
+    redirect: '/welcome',
+  },
+  {
+    path: '*',
+    layout: false,
+    component: './404',
+  },
 ];
