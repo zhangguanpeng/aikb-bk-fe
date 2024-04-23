@@ -212,22 +212,22 @@ export async function deleteTrain(id: string) {
 /** 开始训练 */
 export async function startTrain(id: string) {
   // @ts-ignore
-  return request(`/aikb/v1/train/start/${id}`, {
-    method: 'POST',
+  return request(`/aikb/v1/train/${id}/start`, {
+    method: 'PUT',
   });
 }
 
 /** 停止训练 */
 export async function stopTrain(id: string) {
   // @ts-ignore
-  return request(`/aikb/v1/train/stop/${id}`, {
+  return request(`/aikb/v1/train/${id}/stop`, {
     method: 'PUT',
   });
 }
 
 /** 训练文档上传 POST */
-export async function uploadTrainDocument(params: any) {
-  return request('/aikb/v1/train/file/upload', {
+export async function uploadTrainDocument(params: any, trainId: string) {
+  return request(`/aikb/v1/train/${trainId}/file/upload`, {
     method: 'POST',
     headers: {
       // 'Content-Type': 'multipart/form-data',
@@ -245,7 +245,7 @@ export async function uploadTrainDocument(params: any) {
 
 /** 模型下载 POST */
 export async function downloadTrainModel(id: string) {
-  return request(`/aikb/v1/train/model/download/${id}`, {
+  return request(`/aikb/v1/train/${id}/model/download`, {
     method: 'GET',
     // headers: {
     // 	'Content-Type': 'application/json',

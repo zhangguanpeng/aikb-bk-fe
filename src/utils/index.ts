@@ -29,3 +29,24 @@ export const arrayToTreeLoop = (nodes: any[]) => {
 
   return tree;
 };
+
+export const setCookie = (key: string, value: string, expiresDays: number) => {
+  const date = new Date();
+  date.setTime(date.getTime() + (expiresDays * 24 * 60 * 60 * 1000));
+  // date.setTime(date.getTime() + (2 * 60 * 1000));
+  document.cookie = `${key}=${value};expires=${date.toUTCString()}`
+}
+
+export const getCookie = (key: string) => {
+  const cookieStr = document.cookie;
+  const arr = cookieStr.split('; ');
+  let cookieValue = '';
+  for (let i = 0; i < arr.length; i++) {
+    const temp = arr[i].split('=');
+    if (temp[0] === key) {
+      cookieValue = temp[1];
+      break
+    }
+  }
+  return cookieValue;
+};

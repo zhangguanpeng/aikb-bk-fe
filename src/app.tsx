@@ -1,6 +1,6 @@
 // import Footer from '@/components/Footer';
-import { Question, SelectLang } from '@/components/RightContent';
-import { LinkOutlined } from '@ant-design/icons';
+// import { Question, SelectLang } from '@/components/RightContent';
+// import { LinkOutlined } from '@ant-design/icons';
 import type { Settings as LayoutSettings } from '@ant-design/pro-components';
 // import { SettingDrawer } from '@ant-design/pro-components';
 import type { RunTimeLayoutConfig } from '@umijs/max';
@@ -10,7 +10,8 @@ import { errorConfig } from './requestErrorConfig';
 // import { currentUser as queryCurrentUser } from './services/ant-design-pro/api';
 import React from 'react';
 import { AvatarDropdown, AvatarName } from './components/RightContent/AvatarDropdown';
-const isDev = process.env.NODE_ENV === 'development';
+import { getCookie } from '@/utils';
+// const isDev = process.env.NODE_ENV === 'development';
 const loginPath = '/user/login';
 
 /**
@@ -29,7 +30,7 @@ export async function getInitialState(): Promise<{
 			// });
 			// return msg.data;
 			const data = {
-				name: 'Admin',
+				name: 'admin',
 				avatar: 'https://gw.alipayobjects.com/zos/rmsportal/BiazfanxmamNRoxxVxka.png',
 				userid: '00000001',
 				email: '666888@qq.com',
@@ -94,8 +95,10 @@ export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) =
 		// footerRender: () => <Footer />,
 		onPageChange: () => {
 			const { location } = history;
+			const username = getCookie('username');
+			console.log('登录用户', username);
 			// 如果没有登录，重定向到 login
-			if (!initialState?.currentUser && location.pathname !== loginPath) {
+			if (!username && location.pathname !== loginPath) {
 				history.push(loginPath);
 			}
 		},

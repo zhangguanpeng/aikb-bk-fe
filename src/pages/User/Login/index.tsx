@@ -1,5 +1,5 @@
 import Footer from '@/components/Footer';
-import { login } from '@/services/ant-design-pro/api';
+// import { login } from '@/services/ant-design-pro/api';
 import { getFakeCaptcha } from '@/services/ant-design-pro/login';
 import {
 	AlipayCircleOutlined,
@@ -18,9 +18,10 @@ import {
 import { useEmotionCss } from '@ant-design/use-emotion-css';
 import { FormattedMessage, history, SelectLang, useIntl, useModel, Helmet } from '@umijs/max';
 import { Alert, message, Tabs } from 'antd';
-import Settings from '../../../../config/defaultSettings';
 import React, { useState } from 'react';
 import { flushSync } from 'react-dom';
+import Settings from '../../../../config/defaultSettings';
+import { setCookie } from '@/utils';
 
 const ActionIcons = () => {
 	const langClassName = useEmotionCss(({ token }) => {
@@ -118,10 +119,18 @@ const Login: React.FC = () => {
 		try {
 			// 登录
 			// const msg = await login({ ...values, type });
+			console.log('登录', values);
+			const { username, password } = values;
+			if (username !== 'admin' || password !== 'admin6688') {
+				message.error('用户名或密码错误');
+				return;
+			}
+			
 			const msg = {
 				status: 'ok',
 			};
 			if (msg.status === 'ok') {
+				setCookie('username', username, 1); // cookie有效期为1天
 				const defaultLoginSuccessMessage = intl.formatMessage({
 					id: 'pages.login.success',
 					defaultMessage: '登录成功！',
@@ -188,7 +197,7 @@ const Login: React.FC = () => {
 						await handleSubmit(values as API.LoginParams);
 					}}
 				>
-					<Tabs
+					{/* <Tabs
 						activeKey={type}
 						onChange={setType}
 						centered
@@ -208,7 +217,7 @@ const Login: React.FC = () => {
 							// 	}),
 							// },
 						]}
-					/>
+					/> */}
 
 					{status === 'error' && loginType === 'account' && (
 						<LoginMessage
@@ -228,7 +237,7 @@ const Login: React.FC = () => {
 								}}
 								placeholder={intl.formatMessage({
 									id: 'pages.login.username.placeholder',
-									defaultMessage: '用户名: admin or user',
+									defaultMessage: '请输入用户名',
 								})}
 								rules={[
 									{
@@ -250,7 +259,7 @@ const Login: React.FC = () => {
 								}}
 								placeholder={intl.formatMessage({
 									id: 'pages.login.password.placeholder',
-									defaultMessage: '密码: ant.design',
+									defaultMessage: '请输入密码',
 								})}
 								rules={[
 									{
@@ -354,9 +363,9 @@ const Login: React.FC = () => {
 							marginBottom: 24,
 						}}
 					>
-						<ProFormCheckbox noStyle name="autoLogin">
+						{/* <ProFormCheckbox noStyle name="autoLogin">
 							<FormattedMessage id="pages.login.rememberMe" defaultMessage="自动登录" />
-						</ProFormCheckbox>
+						</ProFormCheckbox> */}
 						{/* <a
 							style={{
 								float: 'right',
