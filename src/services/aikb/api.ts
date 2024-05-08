@@ -253,6 +253,45 @@ export async function downloadTrainModel(id: string) {
   });
 }
 
+/** 用户查询 */
+export async function getUserData(params: any) {
+  return request('/aikb/v1/user', {
+    method: 'GET',
+    params,
+  });
+}
+
+/** 新增用户 */
+export async function addUser(params: any) {
+  return request('/aikb/v1/user', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: params,
+  });
+}
+
+/** 修改用户 */
+export async function updateUser(id: string, params: any) {
+  // @ts-ignore
+  return request(`/aikb/v1/user/${id}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: params,
+  });
+}
+
+/** 删除用户 */
+export async function deleteUser(id: string) {
+  // @ts-ignore
+  return request(`/aikb/v1/user/${id}`, {
+    method: 'DELETE',
+  });
+}
+
 /** 获取规则列表 GET /api/rule */
 export async function rule(
   params: {

@@ -82,6 +82,13 @@ export default [
     component: './CustomQA',
   },
   {
+    name: 'user-list',
+    icon: 'UserOutlined',
+    path: '/userlist',
+    component: './UserList',
+    access: 'canAdmin'
+  },
+  {
     path: '/',
     redirect: '/welcome',
   },

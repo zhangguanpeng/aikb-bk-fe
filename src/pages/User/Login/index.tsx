@@ -1,6 +1,8 @@
 import Footer from '@/components/Footer';
 // import { login } from '@/services/ant-design-pro/api';
 import { getFakeCaptcha } from '@/services/ant-design-pro/login';
+import { login } from '@/services/aikb/login';
+import axios from 'axios';
 import {
 	AlipayCircleOutlined,
 	LockOutlined,
@@ -121,30 +123,68 @@ const Login: React.FC = () => {
 			// const msg = await login({ ...values, type });
 			console.log('登录', values);
 			const { username, password } = values;
-			if (username !== 'admin' || password !== 'admin6688') {
-				message.error('用户名或密码错误');
-				return;
-			}
-			
-			const msg = {
-				status: 'ok',
-			};
-			if (msg.status === 'ok') {
-				setCookie('username', username, 1); // cookie有效期为1天
+			let formData = new FormData();
+			// @ts-ignore
+			formData.append('username', username);
+			// @ts-ignore
+			formData.append('password', password);
+
+			axios.post('/aikb/v1/login', formData).then((res: any) => {
+				console.log('登录res', res);
+				const userInfo = res.data.payload || {};
+				setInitialState((s) => ({
+					...s,
+					currentUser: {
+						...userInfo,
+						access: userInfo.roleList && userInfo.roleList[0].name === 'ROLE_ADMIN' ? 'admin' : '',
+						name: userInfo.username
+					},
+				}));
 				const defaultLoginSuccessMessage = intl.formatMessage({
 					id: 'pages.login.success',
 					defaultMessage: '登录成功！',
 				});
+				// @ts-ignore
+				setCookie('username', username, 1); // cookie有效期为1天
 				message.success(defaultLoginSuccessMessage);
-				await fetchUserInfo();
-				const urlParams = new URL(window.location.href).searchParams;
-				history.push(urlParams.get('redirect') || '/');
-				// history.push('/categorylist');
+				history.push('/');
 				return;
-			}
-			console.log(msg);
+			}).catch((error: any) => {
+				message.error(error.response.data.message);
+			});
+			// login(values).then(() => {
+			// 		const defaultLoginSuccessMessage = intl.formatMessage({
+			// 		id: 'pages.login.success',
+			// 		defaultMessage: '登录成功！',
+			// 	});
+			// 	message.success(defaultLoginSuccessMessage);
+			// 	history.push('/');
+			// 	return;
+			// });
+			// if (username !== 'admin' || password !== 'admin6688') {
+			// 	message.error('用户名或密码错误');
+			// 	return;
+			// }
+			
+			// const msg = {
+			// 	status: 'ok',
+			// };
+			// if (msg.status === 'ok') {
+			// 	setCookie('username', username, 1); // cookie有效期为1天
+			// 	const defaultLoginSuccessMessage = intl.formatMessage({
+			// 		id: 'pages.login.success',
+			// 		defaultMessage: '登录成功！',
+			// 	});
+			// 	message.success(defaultLoginSuccessMessage);
+			// 	await fetchUserInfo();
+			// 	const urlParams = new URL(window.location.href).searchParams;
+			// 	history.push(urlParams.get('redirect') || '/');
+			// 	// history.push('/categorylist');
+			// 	return;
+			// }
+			// console.log(msg);
 			// 如果失败去设置用户错误信息
-			setUserLoginState(msg);
+			// setUserLoginState(msg);
 		} catch (error) {
 			const defaultLoginFailureMessage = intl.formatMessage({
 				id: 'pages.login.failure',

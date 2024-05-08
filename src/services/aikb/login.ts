@@ -19,3 +19,26 @@ export async function getFakeCaptcha(
     ...(options || {}),
   });
 }
+
+/** 用户登录 POST /aikb/v1/login */
+export async function login(params: any) {
+  let formData = new FormData();
+  formData.append('username', params.username);
+  formData.append('password', params.password);
+  
+  return request('/aikb/v1/login', {
+    method: 'POST',
+    headers: {
+      // 'Content-Type': 'form-data',
+    },
+    transformRequest: [
+      function (data, headers: any) {
+        // 去除post请求默认的Content-Type
+        delete headers.post['Content-Type'];
+        return data;
+      },
+    ],
+    data: params,
+    // formData,
+  });
+}

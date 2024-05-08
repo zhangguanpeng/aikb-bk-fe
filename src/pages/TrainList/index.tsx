@@ -7,7 +7,7 @@ import {
   stopTrain,
   uploadTrainDocument,
 } from '@/services/aikb/api';
-import { PlusOutlined, UnorderedListOutlined, RedoOutlined } from '@ant-design/icons';
+import { PlusOutlined, UnorderedListOutlined, RedoOutlined, ExclamationCircleFilled } from '@ant-design/icons';
 import type { UploadProps } from 'antd';
 import { Button, Form, Input, InputNumber, message, Modal, Table, Upload } from 'antd';
 import type { FormInstance } from 'antd/es/form';
@@ -16,6 +16,8 @@ import type { ColumnsType } from 'antd/es/table';
 import React, { useEffect, useState } from 'react';
 // import dayjs from 'dayjs';
 import './index.less';
+
+const { confirm } = Modal;
 
 interface DataType {
   key: string;
@@ -105,7 +107,10 @@ const TrainList: React.FC = () => {
         fetchTrainData(pageInfo, null);
       })
       .catch((error) => {
-        message.error(`上传失败：${error.response.data.message}`);
+        message.error({
+          content: `上传失败：${error.response.data.message}`,
+          style: {width: '600px', margin: '0 auto'}
+        });
         fileList = [];
         setSelectedFileList([]);
       });
@@ -211,7 +216,10 @@ const TrainList: React.FC = () => {
       })
       .catch((error) => {
         console.log(error);
-        message.error(`开启失败：${error.response.data.message}`);
+        message.error({
+          content: `开启失败：${error.response.data.message}`,
+          style: {width: '600px', margin: '0 auto'}
+        });
       });
   };
 
@@ -226,7 +234,10 @@ const TrainList: React.FC = () => {
         fetchTrainData(pageInfo, null);
       })
       .catch((error) => {
-        message.error(`停止失败：${error.response.data.message}`);
+        message.error({
+          content: `停止失败：${error.response.data.message}`,
+          style: {width: '600px', margin: '0 auto'}
+        });
       });
   };
 
@@ -241,7 +252,10 @@ const TrainList: React.FC = () => {
         fetchTrainData(pageInfo, null);
       })
       .catch((error) => {
-        message.error(`删除失败：${error.response.data.message}`);
+        message.error({
+          content: `删除失败：${error.response.data.message}`,
+          style: {width: '600px', margin: '0 auto'}
+        });
       });
   };
 
@@ -300,6 +314,24 @@ const TrainList: React.FC = () => {
     };
     formInModal.setFieldsValue(initFormValues);
   }
+
+  const showDeleteConfirm = (id: string) => {
+    confirm({
+      title: '确定要删除该训练吗？',
+      icon: <ExclamationCircleFilled />,
+      content: '',
+      okText: '确定',
+      okType: 'danger',
+      cancelText: '取消',
+      onOk() {
+        console.log('OK');
+        handleDeleteTrain(id);
+      },
+      onCancel() {
+        console.log('Cancel');
+      },
+    });
+  };
 
   const columns: ColumnsType<DataType> = [
     {
@@ -401,17 +433,17 @@ const TrainList: React.FC = () => {
                 handleDownloadTrain(record.id);
               }}
               style={{ padding: '4px 5px' }}
-              disabled={record.status === 'RUNNING'}
+              disabled={record.status !== 'COMPLETED'}
             >
               下载
             </Button>
             <Button
               type='link'
               onClick={() => {
-                handleDeleteTrain(record.id);
+                showDeleteConfirm(record.id);
               }}
               style={{ color: 'red', padding: '4px 5px' }}
-              disabled={record.status === 'RUNNING' || record.status === 'FAILED'}
+              disabled={record.status === 'RUNNING'}
             >
               删除
             </Button>
