@@ -24,6 +24,7 @@ export default {
   'menu.list': '列表页',
   'menu.list.table-list': '查询表格',
   'menu.list.category-list': '类目管理',
+  'menu.list.tag-list': '标签管理',
   'menu.list.document-list': '文档管理',
   'menu.list.basic-list': '标准列表',
   'menu.list.card-list': '卡片列表',

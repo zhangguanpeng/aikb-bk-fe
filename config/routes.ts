@@ -51,11 +51,17 @@ export default [
   // 	path: '/list',
   // 	component: './TableList',
   // },
+  // {
+  //   name: 'list.category-list',
+  //   icon: 'bars',
+  //   path: '/categorylist',
+  //   component: './CategoryList',
+  // },
   {
-    name: 'list.category-list',
-    icon: 'bars',
-    path: '/categorylist',
-    component: './CategoryList',
+    name: 'list.tag-list',
+    icon: 'TagsOutlined',
+    path: '/taglist',
+    component: './TagList',
   },
   {
     name: 'list.document-list',

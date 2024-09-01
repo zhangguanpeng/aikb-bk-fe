@@ -4,14 +4,13 @@ import {
   getDocumentData,
   uploadDocument,
 } from '@/services/aikb/api';
-import { arrayToTreeLoop } from '@/utils';
-import { UnorderedListOutlined, UploadOutlined } from '@ant-design/icons';
+// import { arrayToTreeLoop } from '@/utils';
+import { UnorderedListOutlined, UploadOutlined, SettingOutlined, PlusCircleOutlined } from '@ant-design/icons';
 import type { UploadProps } from 'antd';
-import { Button, Form, Input, message, Modal, Space, Table, Tree, TreeSelect, Upload } from 'antd';
+import { Button, Form, Input, message, Modal, Space, Table, InputNumber, Select, Upload } from 'antd';
 import type { FormInstance } from 'antd/es/form';
 import { useForm } from 'antd/es/form/Form';
 import type { ColumnsType } from 'antd/es/table';
-import type { TreeProps } from 'antd/es/tree';
 import React, { useEffect, useState } from 'react';
 import './index.less';
 
@@ -34,42 +33,54 @@ interface DataType {
   };
 }
 
-// const formItemLayout = { labelCol: { span: 4 }, wrapperCol: { span: 14 } };
+const formInModalItemLayout = { labelCol: { span: 5 }, wrapperCol: { span: 19 } };
+
+const options = [
+  {
+    label: 'a10',
+    value: 'a10',
+  }, {
+    label: 'b11',
+    value: 'b11',
+  }, {
+    label: 'c12',
+    value: 'c12'
+  }
+];
 
 const DocumentList: React.FC = () => {
   const formRef = React.useRef<FormInstance>(null);
   const [form] = useForm();
+  const [formInModal] = Form.useForm();
 
-  const [treeData, setTreeData] = useState([]);
+  // const [treeData, setTreeData] = useState([]);
   const [documentData, setDocumentData] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [total, setTotal] = useState(0);
-  const [selectedCategory, setSelectedCategory] = useState('');
+  const [selectedTags, setSelectedTags] = useState<String[]>([]);
   const [categoryModalShow, setCategoryModalShow] = useState(false);
-  const [expandedKeys, setExpandedKeys] = useState<React.Key[]>([]);
-  const [autoExpandParent, setAutoExpandParent] = useState(true);
   const [selectedUploadCategory, setSelectedUploadCategory] = useState({});
   const [currentUploadCategory, setCurrentUploadCategory] = useState({});
   const [selectedFileList, setSelectedFileList] = useState([]);
   let fileList = [];
 
-  const fetchCategoryData = () => {
-    getCategoryData()
-      .then((res) => {
-        console.log('类目列表res', res);
-        const treeData = arrayToTreeLoop(res.payload);
-        // console.log('接口treeData', treeData);
-        //@ts-ignore
-        setTreeData(treeData);
-      })
-      .catch((error: any) => {
-        console.log(error);
-      });
-  };
+  // const fetchCategoryData = () => {
+  //   getCategoryData()
+  //     .then((res) => {
+  //       console.log('类目列表res', res);
+  //       const treeData = arrayToTreeLoop(res.payload);
+  //       // console.log('接口treeData', treeData);
+  //       //@ts-ignore
+  //       setTreeData(treeData);
+  //     })
+  //     .catch((error: any) => {
+  //       console.log(error);
+  //     });
+  // };
 
-  useEffect(() => {
-    fetchCategoryData();
-  }, []);
+  // useEffect(() => {
+  //   fetchCategoryData();
+  // }, []);
 
   const fetchDocumentData = (pageInfo: any, formValues: any) => {
     const { documentName = '', category = '' } = formValues || form.getFieldsValue();
@@ -122,31 +133,6 @@ const DocumentList: React.FC = () => {
   const props: UploadProps = {
     name: 'file',
     accept: '.doc,.docx,.pdf',
-    // action: '/aikb/v1/doc/upload',
-    // onChange(info) {
-    // 	if (info.file.status !== 'uploading') {
-    // 		console.log(info.file, info.fileList);
-    // 	}
-
-    // 	if (info.file.status === 'done') {
-    // 		const params = {
-    // 			categoryId: 1,
-    // 			documentList: info.fileList[0].originFileObj,
-    // 		};
-    // 		uploadDocument(params).then(() => {
-    // 			message.success(`${info.file.name} 上传成功`);
-    // 			const pageInfo = {
-    // 				page: 1,
-    // 				size: 10,
-    // 			};
-    // 			fetchDocumentData(pageInfo, null);
-    // 		}).catch(() => {
-    // 			message.error(`${info.file.name} 上传失败.`);
-    // 		});
-    // 	} else if (info.file.status === 'error') {
-    // 		message.error(`${info.file.name} 上传失败.`);
-    // 	}
-    // },
     beforeUpload: (file) => {
       console.log('beforeUpload file', file);
       // @ts-ignore
@@ -192,21 +178,6 @@ const DocumentList: React.FC = () => {
     };
     fetchDocumentData(pageInfo, null);
   };
-
-  // const downloadFile = (filestream: any, fileName: string) => {
-  // 	//fileName : 设置下载的文件名称
-  // 	//filestream: 返回的文件流
-  // 	const blob = new Blob([filestream], {type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'});
-  // 	// const blob = new Blob([filestream]);
-  // 	const a = document.createElement('a');
-  // 	const href = window.URL.createObjectURL(blob); // 创建下载连接
-  // 	a.href = href;
-  // 	a.download = decodeURI(fileName );
-  // 	document.body.appendChild(a);
-  // 	a.click();
-  // 	document.body.removeChild(a); // 下载完移除元素
-  // 	window.URL.revokeObjectURL(href); // 释放掉blob对象
-  // };
 
   const downloadFile = (url: string) => {
     const a = document.createElement('a');
@@ -287,7 +258,7 @@ const DocumentList: React.FC = () => {
     {
       title: '操作',
       key: 'action',
-      width: 100,
+      width: 180,
       render: (_, record) => (
         <>
           <Space size="middle">
@@ -297,6 +268,26 @@ const DocumentList: React.FC = () => {
               }}
             >
               下载
+            </a>
+          </Space>
+          <Space size="middle">
+            <a
+              onClick={() => {
+                handleDownloadFile(record.id);
+              }}
+              style={{ paddingLeft: '10px' }}
+            >
+              修改分片
+            </a>
+          </Space>
+          <Space size="middle">
+            <a
+              onClick={() => {
+                handleDownloadFile(record.id);
+              }}
+              style={{ paddingLeft: '10px' }}
+            >
+              分片详情
             </a>
           </Space>
           <Space size="middle">
@@ -322,24 +313,15 @@ const DocumentList: React.FC = () => {
     fetchDocumentData(pageInfo, formValues);
   };
 
-  const onTreeChange = (newTreeValue: string) => {
-    setSelectedCategory(newTreeValue);
+  const handleSelectTagChange = (newTagValue: string[]) => {
+    console.log('newTagValue', newTagValue);
+    setSelectedTags(newTagValue);
   };
 
   const handleSelectCategoryOk = () => {
     setCurrentUploadCategory(selectedUploadCategory);
     console.log('selectedUploadCategory', selectedUploadCategory);
     setCategoryModalShow(false);
-  };
-
-  const onExpand = (newExpandedKeys: React.Key[]) => {
-    setExpandedKeys(newExpandedKeys);
-    setAutoExpandParent(false);
-  };
-
-  const onSelect: TreeProps['onSelect'] = (selectedKeys, info) => {
-    console.log('selected', selectedKeys, info);
-    setSelectedUploadCategory(info.node);
   };
 
   return (
@@ -357,53 +339,39 @@ const DocumentList: React.FC = () => {
           <Form.Item name="documentName" label="文档名称">
             <Input style={{ width: 200 }} />
           </Form.Item>
-          <Form.Item name="category" label="类目">
-            <TreeSelect
-              showSearch
+          <Form.Item name="tag" label="标签">
+            <Select
+              mode="multiple"
               style={{ width: 200 }}
-              value={selectedCategory}
-              dropdownStyle={{ maxHeight: 400, overflow: 'auto', width: 200 }}
-              placeholder="请选择"
-              allowClear
-              treeDefaultExpandAll
-              onChange={onTreeChange}
-              treeData={treeData}
+              placeholder="请选择标签"
+              defaultValue={[]}
+              // onChange={handleChange}
+              options={options}
             />
           </Form.Item>
           <Form.Item>
             <Button type="primary" htmlType="submit">
               查询
             </Button>
-            {/* <Button htmlType="button" onClick={onReset}>
-							Reset
-						</Button> */}
           </Form.Item>
         </Form>
       </div>
       <div className="btn-box">
-        <Button
+      <Button
           type="link"
-          icon={<UnorderedListOutlined />}
+          icon={<SettingOutlined />}
           onClick={() => {
             setCategoryModalShow(true);
           }}
         >
-          选择类目
+          上传文档设置
         </Button>
-        {
-          // @ts-ignore
-          currentUploadCategory.title && (
-            <span className="selected-upload-category-text">
-              已选择类目：{currentUploadCategory.title}
-            </span>
-          )
-        }
         <Upload {...props}>
           {/* @ts-ignore */}
           <Button
             type="link"
             icon={<UnorderedListOutlined />}
-            disabled={!currentUploadCategory.title}
+            disabled={selectedTags.length === 0}
           >
             选择文档
           </Button>
@@ -411,7 +379,7 @@ const DocumentList: React.FC = () => {
         <Button type="link" icon={<UploadOutlined />} onClick={customRequest}>
           上传文档
         </Button>
-        <span className="selected-upload-category-text">上传文档前请先选择类目和文档</span>
+        <span className="selected-upload-category-text">上传文档前请先选择标签和文档</span>
       </div>
       <div className="common-box">
         <Table
@@ -435,7 +403,7 @@ const DocumentList: React.FC = () => {
         />
       </div>
       <Modal
-        title="选择类目"
+        title="文档设置"
         open={categoryModalShow}
         onCancel={() => {
           setCategoryModalShow(false);
@@ -444,16 +412,42 @@ const DocumentList: React.FC = () => {
         width={660}
         className="create-train-modal"
       >
-        <div>
-          <Tree
-            onExpand={onExpand}
-            expandedKeys={expandedKeys}
-            autoExpandParent={autoExpandParent}
-            treeData={treeData}
-            // checkable
-            onSelect={onSelect}
-            // onCheck={onCheck}
-          />
+        <div style={{ paddingTop: '10px' }}>
+          <Form
+            {...formInModalItemLayout}
+            form={formInModal}
+            name="control-ref"
+            // onFinish={onAddQaFinish}
+          >
+            <Form.Item name="question" label="选择标签" rules={[{ required: true, message: '请选择标签!' }]}>
+              <Select
+                mode="multiple"
+                // style={{ width: 200 }}
+                placeholder="请选择标签"
+                defaultValue={[]}
+                // onChange={handleChange}
+                options={options}
+              />
+            </Form.Item>
+            <Form.Item name="splitLength" label="分段最大长度" rules={[{ required: true, message: '请设置分段最大长度!' }]}>
+              <InputNumber min={1} max={100} defaultValue={3} />
+            </Form.Item>
+            <Form.Item name="answer" label="逐层分段标识符" rules={[{ required: true, message: '请选择逐层分段标识符!' }]}>
+              <div>
+                <Select
+                  mode="multiple"
+                  style={{ width: 200 }}
+                  placeholder="请选择标签"
+                  defaultValue={[]}
+                  // onChange={handleChange}
+                  options={options}
+                />
+                <Button type='text'>
+                  <PlusCircleOutlined />
+                </Button>
+              </div>
+            </Form.Item>
+          </Form>
         </div>
       </Modal>
     </div>

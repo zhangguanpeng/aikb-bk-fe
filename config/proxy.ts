@@ -21,8 +21,8 @@ export default {
       changeOrigin: true,
     },
     '/aikb/': {
-      // target: 'http://ais.fxincen.top:8090', // 测试环境
-      target: 'http://60.205.232.161:80', // 正式环境-用户服务器
+      target: 'http://ais.fxincen.top:8090', // 测试环境
+      // target: 'http://60.205.232.161:80', // 正式环境-用户服务器
       changeOrigin: true,
       pathRewrite: { '^': '' },
     },

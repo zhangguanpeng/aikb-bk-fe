@@ -41,6 +41,45 @@ export async function deleteCategory(selectedKey: string) {
   });
 }
 
+/** 获取用户有权限的类目列表 GET /aikb/v1/category */
+export async function getTagData(options?: { [key: string]: any }) {
+  return request('/aikb/v1/category', {
+    method: 'GET',
+    ...(options || {}),
+  });
+}
+
+/** 新增类目 POST /aikb/v1/category */
+export async function addTag(params: any) {
+  return request('/aikb/v1/category', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: params,
+  });
+}
+
+/** 修改类目 PUT /aikb/v1/category/{categoryId} */
+export async function updateTag(parentId: string, params: any) {
+  // @ts-ignore
+  return request(`/aikb/v1/category/${parentId}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: params,
+  });
+}
+
+/** 删除类目 DELETE /aikb/v1/category/{categoryId} */
+export async function deleteTag(selectedKey: string) {
+  // @ts-ignore
+  return request(`/aikb/v1/category/${selectedKey}`, {
+    method: 'DELETE',
+  });
+}
+
 /** 获取文档列表 GET /aikb/v1/doc */
 export async function getDocumentData(params: any) {
   return request('/aikb/v1/doc', {
