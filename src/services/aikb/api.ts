@@ -41,17 +41,17 @@ export async function deleteCategory(selectedKey: string) {
   });
 }
 
-/** 获取用户有权限的类目列表 GET /aikb/v1/category */
-export async function getTagData(options?: { [key: string]: any }) {
-  return request('/aikb/v1/category', {
+/** 获取标签列表 GET /aikb/v1/doc/tag */
+export async function getTagData(params: any) {
+  return request('/aikb/v1/doc/tag', {
     method: 'GET',
-    ...(options || {}),
+    params: params,
   });
 }
 
-/** 新增类目 POST /aikb/v1/category */
+/** 新增标签 POST /aikb/v1/doc/tag */
 export async function addTag(params: any) {
-  return request('/aikb/v1/category', {
+  return request('/aikb/v1/doc/tag', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -60,10 +60,10 @@ export async function addTag(params: any) {
   });
 }
 
-/** 修改类目 PUT /aikb/v1/category/{categoryId} */
-export async function updateTag(parentId: string, params: any) {
+/** 修改标签 PUT /aikb/v1/doc/tag/{tagId} */
+export async function updateTag(tagId: string, params: any) {
   // @ts-ignore
-  return request(`/aikb/v1/category/${parentId}`, {
+  return request(`/aikb/v1/doc/tag/${tagId}`, {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
@@ -72,10 +72,10 @@ export async function updateTag(parentId: string, params: any) {
   });
 }
 
-/** 删除类目 DELETE /aikb/v1/category/{categoryId} */
-export async function deleteTag(selectedKey: string) {
+/** 删除标签 DELETE /aikb/v1/doc/tag/${tagId} */
+export async function deleteTag(tagId: string) {
   // @ts-ignore
-  return request(`/aikb/v1/category/${selectedKey}`, {
+  return request(`/aikb/v1/doc/tag/${tagId}`, {
     method: 'DELETE',
   });
 }
@@ -121,6 +121,50 @@ export async function downloadDocument(id: string) {
     // headers: {
     // 	'Content-Type': 'application/json',
     // },
+  });
+}
+
+/** 修改文档标签 PUT /aikb/v1/doc/{docId}/tags?tagIds= */
+export async function updateDocTag(docId: string, params: any) {
+  // @ts-ignore
+  return request(`/aikb/v1/doc/${docId}/tags`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: params,
+    // params: params,
+  });
+}
+
+/** 修改文档切片算法 PUT /aikb/v1/doc/{docId}/splitAlgorithm?algorithm=? */
+export async function updateDocStrategy(docId: string, params: any) {
+  // @ts-ignore
+  return request(`/aikb/v1/doc/${docId}/splitAlgorithm`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: params,
+  });
+}
+
+/** 获取分片列表 GET /aikb/v1/split/{docId}/tag */
+export async function getSplitData(docId: string, params: any) {
+  return request(`/aikb/v1/split/${docId}`, {
+    method: 'GET',
+    // params: params,
+  });
+}
+
+/** 编辑单个切片 POST /aikb/v1/split/edit */
+export async function updateSingleSplitTag(params: any) {
+  return request('/aikb/v1/split/edit', {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: params,
   });
 }
 

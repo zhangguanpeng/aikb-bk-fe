@@ -16,6 +16,7 @@ interface DataType {
   key: string;
   id: string;
   name: string;
+  color: string;
   splitStatus: string; // 分片状态，FRESH：未处理，SPLITTING：分片中，SPLIT_COMPLETED：分片完成
   splitCount: string; // 分片数
   tokenNumber: string; // token数
@@ -46,8 +47,8 @@ const TagList: React.FC = () => {
 
   const handleUpdateTag = (action: string, record: any) => {
     const initFormValues = {
-      question: action === 'add' ? '' : record.question,
-      answer: action === 'add' ? '' : record.answer,
+      name: action === 'add' ? '' : record.name,
+      color: action === 'add' ? '#1677FF' : record.color,
     };
     formInModal.setFieldsValue(initFormValues);
     setActionType(action);
@@ -58,10 +59,10 @@ const TagList: React.FC = () => {
   };
 
   const fetchTagData = (pageInfo: any, formValues: any) => {
-    const { tagName = '', category = '' } = formValues || form.getFieldsValue();
+    const { tagName = ''} = formValues || form.getFieldsValue();
     console.log('formValues', formValues);
     const params = {
-      'category.id': category,
+      id: '',
       name: tagName,
       page: pageInfo.page,
       size: pageInfo.size,
@@ -88,14 +89,10 @@ const TagList: React.FC = () => {
     fetchTagData(pageInfo, null);
   };
 
-  const handleEditTag = (id: string) => {
-    //
-  };
-
   const handleDeleteTag = (id: string) => {
     deleteTag(id)
       .then(() => {
-        message.success('文件删除成功');
+        message.success('标签删除成功');
         const pageInfo = {
           page: 1,
           size: 10,
@@ -103,7 +100,7 @@ const TagList: React.FC = () => {
         fetchTagData(pageInfo, null);
       })
       .catch(() => {
-        message.error('文件删除失败');
+        message.error('标签删除失败');
       });
   };
 
@@ -112,7 +109,7 @@ const TagList: React.FC = () => {
       page: 1,
       size: 10,
     };
-    // fetchTagData(pageInfo, null);
+    fetchTagData(pageInfo, null);
   }, []);
 
   const columns: ColumnsType<DataType> = [
@@ -121,14 +118,14 @@ const TagList: React.FC = () => {
       dataIndex: 'name',
       key: 'name',
       width: 350,
-      render: (text) => <a>{text}</a>,
+      render: (text) => <span>{text}</span>,
     },
     {
       title: '标签颜色',
-      dataIndex: 'category',
-      key: 'category',
+      dataIndex: 'color',
+      key: 'color',
       width: 90,
-      render: (_, record) => <span>{record.category.name || '默认类目'}</span>,
+      render: (_, record) => <span style={{ color: record.color }}>{record.color}</span>,
     },
     {
       title: '标签备注',
@@ -157,7 +154,7 @@ const TagList: React.FC = () => {
           <Space size="middle">
             <a
               onClick={() => {
-                handleEditTag(record.id);
+                handleUpdateTag('edit', record);
               }}
             >
               编辑
@@ -188,19 +185,20 @@ const TagList: React.FC = () => {
 
   const handleTagOk = () => {
     console.log('formInModal value', formInModal.getFieldsValue());
-    const { question, answer } = formInModal.getFieldsValue();
+    const { name, color } = formInModal.getFieldsValue();
     const params = {
-      question,
-      answer,
+      name,
+      color: typeof color === 'string' ? color : `#${color.toHex().toLocaleUpperCase()}`,
     };
 
+    // @ts-ignore
     const { id = '' } = currentRecord;
 
     if (actionType === 'add') {
       addTag(params)
         .then((res) => {
-          console.log('定制QAres', res);
-          message.success('添加成功');
+          console.log('创建标签res', res);
+          message.success('创建成功');
           setTagModalShow(false);
           const pageInfo = {
             page: 1,
@@ -214,7 +212,7 @@ const TagList: React.FC = () => {
     } else {
       updateTag(id, params)
         .then((res) => {
-          console.log('定制QAres', res);
+          console.log('修改标签res', res);
           message.success('修改成功');
           setTagModalShow(false);
           const pageInfo = {
@@ -299,15 +297,15 @@ const TagList: React.FC = () => {
             name="control-ref"
             // onFinish={onAddQaFinish}
           >
-            <Form.Item name="question" label="标签名称">
+            <Form.Item name="name" label="标签名称">
               <Input />
             </Form.Item>
-            <Form.Item name="tagColor" label="标签颜色">
-              <ColorPicker defaultValue="#1677ff" />
+            <Form.Item name="color" label="标签颜色">
+              <ColorPicker defaultValue="#1677FF" format='hex' />
             </Form.Item>
-            <Form.Item name="answer" label="标签备注">
+            {/* <Form.Item name="answer" label="标签备注">
               <Input.TextArea />
-            </Form.Item>
+            </Form.Item> */}
           </Form>
         </div>
       </Modal>

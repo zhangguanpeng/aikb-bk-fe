@@ -26,6 +26,7 @@ export default {
   'menu.list.category-list': '类目管理',
   'menu.list.tag-list': '标签管理',
   'menu.list.document-list': '文档管理',
+  'menu.list.split-list': '分片详情',
   'menu.list.basic-list': '标准列表',
   'menu.list.card-list': '卡片列表',
   'menu.list.search-list': '搜索列表',

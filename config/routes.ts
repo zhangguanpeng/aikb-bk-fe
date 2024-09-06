@@ -70,6 +70,13 @@ export default [
     component: './DocumentList',
   },
   {
+    name: 'list.split-list',
+    icon: 'fileWord',
+    path: '/splitlist',
+    component: './SplitList',
+    hideInMenu: true,
+  },
+  {
     name: 'train-list',
     icon: 'ExperimentOutlined',
     path: '/trainlist',

@@ -1,13 +1,16 @@
 import {
   deleteDocument,
-  getCategoryData,
+  getTagData,
   getDocumentData,
   uploadDocument,
+  updateDocTag,
+  updateDocStrategy
 } from '@/services/aikb/api';
 // import { arrayToTreeLoop } from '@/utils';
-import { UnorderedListOutlined, UploadOutlined, SettingOutlined, PlusCircleOutlined } from '@ant-design/icons';
+import { UnorderedListOutlined, UploadOutlined, PlusOutlined, SettingOutlined, PlusCircleOutlined } from '@ant-design/icons';
 import type { UploadProps } from 'antd';
 import { Button, Form, Input, message, Modal, Space, Table, InputNumber, Select, Upload } from 'antd';
+import { history, Link } from '@umijs/max';
 import type { FormInstance } from 'antd/es/form';
 import { useForm } from 'antd/es/form/Form';
 import type { ColumnsType } from 'antd/es/table';
@@ -48,39 +51,63 @@ const options = [
   }
 ];
 
+const splitAlgorithmOptions = [
+  {
+    label: '默认算法',
+    value: 'default',
+  }
+]
+
 const DocumentList: React.FC = () => {
   const formRef = React.useRef<FormInstance>(null);
   const [form] = useForm();
   const [formInModal] = Form.useForm();
+  const [formInEditTagModal] = Form.useForm();
+  const [formInEditStrategyModal] = Form.useForm();
 
   // const [treeData, setTreeData] = useState([]);
   const [documentData, setDocumentData] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [total, setTotal] = useState(0);
+  const [tagData, setTagData] = useState([]);
   const [selectedTags, setSelectedTags] = useState<String[]>([]);
-  const [categoryModalShow, setCategoryModalShow] = useState(false);
+  const [documentSettingModalShow, setDocumentSettingModalShow] = useState(false);
+  const [editTagModalShow, setEditTagModalShow] = useState(false);
+  const [editStrategyModalShow, setEditStrategyModalShow] = useState(false);
+  const [currentRecord, setCurrentRecord] = useState({});
   const [selectedUploadCategory, setSelectedUploadCategory] = useState({});
   const [currentUploadCategory, setCurrentUploadCategory] = useState({});
   const [selectedFileList, setSelectedFileList] = useState([]);
   let fileList = [];
 
-  // const fetchCategoryData = () => {
-  //   getCategoryData()
-  //     .then((res) => {
-  //       console.log('类目列表res', res);
-  //       const treeData = arrayToTreeLoop(res.payload);
-  //       // console.log('接口treeData', treeData);
-  //       //@ts-ignore
-  //       setTreeData(treeData);
-  //     })
-  //     .catch((error: any) => {
-  //       console.log(error);
-  //     });
-  // };
+  const fetchTagData = () => {
+    const params = {
+      id: '',
+      name: '',
+      page: 1,
+      size: 100,
+      sort: 'createdDate,desc',
+    };
+    getTagData(params)
+      .then((res) => {
+        console.log('标签列表res', res);
+        const tagData = res.payload.map((item: any) => {
+          const option = {
+            label: item.name,
+            value: item.id
+          };
+          return option
+        });
+        setTagData(tagData);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
 
-  // useEffect(() => {
-  //   fetchCategoryData();
-  // }, []);
+  useEffect(() => {
+    fetchTagData();
+  }, []);
 
   const fetchDocumentData = (pageInfo: any, formValues: any) => {
     const { documentName = '', category = '' } = formValues || form.getFieldsValue();
@@ -104,6 +131,8 @@ const DocumentList: React.FC = () => {
   };
 
   const customRequest = () => {
+    console.log('formInModal', formInModal.getFieldsValue());
+    const { tagIds, algorithm = 'default' } = formInModal.getFieldsValue();
     console.log('selectedFileList', selectedFileList);
     if (selectedFileList.length < 1) {
       message.warning('请先选择文档');
@@ -114,7 +143,9 @@ const DocumentList: React.FC = () => {
       formData.append(`documentList`, file);
     });
     // @ts-ignore
-    formData.append(`categoryId`, currentUploadCategory.key);
+    // formData.append(`categoryId`, currentUploadCategory.key);
+    formData.append(`algorithm`, algorithm);
+    formData.append(`tagIds`, tagIds);
 
     uploadDocument(formData)
       .then((res: any) => {
@@ -122,7 +153,13 @@ const DocumentList: React.FC = () => {
         console.log('上传文档res', res);
         setSelectedFileList([]);
         // @ts-ignore
-        setDocumentData([...documentData, ...res.payload]);
+        // setDocumentData([...documentData, ...res.payload]);
+        setDocumentSettingModalShow(false);
+        const pageInfo = {
+          page: 1,
+          size: 10,
+        };
+        fetchDocumentData(pageInfo, null);
       })
       .catch(() => {
         message.error('上传失败');
@@ -221,15 +258,8 @@ const DocumentList: React.FC = () => {
       title: '文档名称',
       dataIndex: 'name',
       key: 'name',
-      width: 350,
+      width: 300,
       render: (text) => <a>{text}</a>,
-    },
-    {
-      title: '类目名称',
-      dataIndex: 'category',
-      key: 'category',
-      width: 90,
-      render: (_, record) => <span>{record.category.name || '默认类目'}</span>,
     },
     {
       title: '分片数',
@@ -258,7 +288,7 @@ const DocumentList: React.FC = () => {
     {
       title: '操作',
       key: 'action',
-      width: 180,
+      width: 250,
       render: (_, record) => (
         <>
           <Space size="middle">
@@ -266,6 +296,7 @@ const DocumentList: React.FC = () => {
               onClick={() => {
                 handleDownloadFile(record.id);
               }}
+              style={{ paddingRight: '10px' }}
             >
               下载
             </a>
@@ -273,19 +304,32 @@ const DocumentList: React.FC = () => {
           <Space size="middle">
             <a
               onClick={() => {
-                handleDownloadFile(record.id);
+                setCurrentRecord(record);
+                setEditTagModalShow(true);
               }}
-              style={{ paddingLeft: '10px' }}
+              style={{ paddingRight: '10px' }}
             >
-              修改分片
+              修改标签
             </a>
           </Space>
           <Space size="middle">
             <a
               onClick={() => {
-                handleDownloadFile(record.id);
+                setCurrentRecord(record);
+                setEditStrategyModalShow(true);
               }}
-              style={{ paddingLeft: '10px' }}
+              style={{ paddingRight: '10px' }}
+            >
+              修改策略
+            </a>
+          </Space>
+          <Space size="middle">
+            <a
+              onClick={() => {
+                // handleDownloadFile(record.id);
+                history.push('/splitlist', { documentId: record.id })
+              }}
+              style={{ paddingRight: '10px' }}
             >
               分片详情
             </a>
@@ -295,7 +339,7 @@ const DocumentList: React.FC = () => {
               onClick={() => {
                 handleDeleteFile(record.id);
               }}
-              style={{ color: 'red', paddingLeft: '10px' }}
+              style={{ color: 'red', paddingRight: '10px' }}
             >
               删除
             </a>
@@ -313,15 +357,41 @@ const DocumentList: React.FC = () => {
     fetchDocumentData(pageInfo, formValues);
   };
 
-  const handleSelectTagChange = (newTagValue: string[]) => {
-    console.log('newTagValue', newTagValue);
-    setSelectedTags(newTagValue);
+  const handleEditTagOk = () => {
+    const { tagIds } = formInEditTagModal.getFieldsValue();
+    console.log('tagIds', tagIds);
+    // @ts-ignore
+    updateDocTag(currentRecord.id, { tagIds: tagIds.join(',') }).then(res => {
+      message.success('修改成功');
+      const pageInfo = {
+        page: 1,
+        size: 10,
+      };
+      fetchDocumentData(pageInfo, null);
+      setEditTagModalShow(false);
+    }).catch(error => {
+      message.error('修改失败');
+      //
+    })
+    
   };
 
-  const handleSelectCategoryOk = () => {
-    setCurrentUploadCategory(selectedUploadCategory);
-    console.log('selectedUploadCategory', selectedUploadCategory);
-    setCategoryModalShow(false);
+  const handleEditStrategyOk = () => {
+    const { algorithm } = formInEditStrategyModal.getFieldsValue();
+    // @ts-ignore
+    updateDocStrategy(currentRecord.id, { algorithm }).then(res => {
+      message.success('修改成功');
+      const pageInfo = {
+        page: 1,
+        size: 10,
+      };
+      fetchDocumentData(pageInfo, null);
+      setEditStrategyModalShow(false);
+    }).catch(error => {
+      message.error('修改失败');
+      //
+    })
+    
   };
 
   return (
@@ -346,7 +416,7 @@ const DocumentList: React.FC = () => {
               placeholder="请选择标签"
               defaultValue={[]}
               // onChange={handleChange}
-              options={options}
+              options={tagData}
             />
           </Form.Item>
           <Form.Item>
@@ -357,29 +427,12 @@ const DocumentList: React.FC = () => {
         </Form>
       </div>
       <div className="btn-box">
-      <Button
-          type="link"
-          icon={<SettingOutlined />}
-          onClick={() => {
-            setCategoryModalShow(true);
+        <Button type="link" icon={<UploadOutlined />} onClick={() => {
+            setDocumentSettingModalShow(true);
           }}
         >
-          上传文档设置
-        </Button>
-        <Upload {...props}>
-          {/* @ts-ignore */}
-          <Button
-            type="link"
-            icon={<UnorderedListOutlined />}
-            disabled={selectedTags.length === 0}
-          >
-            选择文档
-          </Button>
-        </Upload>
-        <Button type="link" icon={<UploadOutlined />} onClick={customRequest}>
           上传文档
         </Button>
-        <span className="selected-upload-category-text">上传文档前请先选择标签和文档</span>
       </div>
       <div className="common-box">
         <Table
@@ -403,12 +456,12 @@ const DocumentList: React.FC = () => {
         />
       </div>
       <Modal
-        title="文档设置"
-        open={categoryModalShow}
+        title="上传文档"
+        open={documentSettingModalShow}
         onCancel={() => {
-          setCategoryModalShow(false);
+          setDocumentSettingModalShow(false);
         }}
-        onOk={handleSelectCategoryOk}
+        onOk={customRequest}
         width={660}
         className="create-train-modal"
       >
@@ -417,36 +470,81 @@ const DocumentList: React.FC = () => {
             {...formInModalItemLayout}
             form={formInModal}
             name="control-ref"
-            // onFinish={onAddQaFinish}
           >
-            <Form.Item name="question" label="选择标签" rules={[{ required: true, message: '请选择标签!' }]}>
+            <Form.Item name="tagIds" label="选择标签" rules={[{ required: true, message: '请选择标签!' }]}>
               <Select
                 mode="multiple"
-                // style={{ width: 200 }}
                 placeholder="请选择标签"
                 defaultValue={[]}
-                // onChange={handleChange}
-                options={options}
+                options={tagData}
               />
             </Form.Item>
-            <Form.Item name="splitLength" label="分段最大长度" rules={[{ required: true, message: '请设置分段最大长度!' }]}>
-              <InputNumber min={1} max={100} defaultValue={3} />
-            </Form.Item>
-            <Form.Item name="answer" label="逐层分段标识符" rules={[{ required: true, message: '请选择逐层分段标识符!' }]}>
-              <div>
-                <Select
-                  mode="multiple"
-                  style={{ width: 200 }}
-                  placeholder="请选择标签"
-                  defaultValue={[]}
-                  // onChange={handleChange}
-                  options={options}
-                />
-                <Button type='text'>
-                  <PlusCircleOutlined />
+            <Form.Item name="algorithm" label="选择切片算法" rules={[{ required: true, message: '请选择切片算法!' }]}>
+              <Select
+                placeholder="请选择切片算法"
+                options={splitAlgorithmOptions}
+              />
+            </Form.Item> 
+            <Form.Item name="upload" label="选择文档" rules={[{ required: true, message: '请选择文档!' }]}>
+              <Upload {...props}>
+                {/* @ts-ignore */}
+                <Button
+                  icon={<UploadOutlined />}
+                >
+                  选择
                 </Button>
-              </div>
+              </Upload>
             </Form.Item>
+            
+          </Form>
+        </div>
+      </Modal>
+      <Modal
+        title="修改标签"
+        open={editTagModalShow}
+        onCancel={() => {
+          setEditTagModalShow(false);
+        }}
+        onOk={handleEditTagOk}
+        width={660}
+        className="create-train-modal"
+      >
+        <div style={{ paddingTop: '10px' }}>
+        <Form
+            {...formInModalItemLayout}
+            form={formInEditTagModal}
+          >
+            <Form.Item name="tagIds" label="选择标签" rules={[{ required: true, message: '请选择标签!' }]}>
+              <Select
+                mode="multiple"
+                placeholder="请选择标签"
+                defaultValue={[]}
+                options={tagData}
+              />
+            </Form.Item>           
+          </Form>
+        </div>
+      </Modal>
+      <Modal
+        title="修改策略"
+        open={editStrategyModalShow}
+        onCancel={() => {
+          setEditStrategyModalShow(false);
+        }}
+        onOk={handleEditStrategyOk}
+        width={660}
+      >
+        <div style={{ paddingTop: '10px' }}>
+          <Form
+            {...formInModalItemLayout}
+            form={formInEditStrategyModal}
+          >
+            <Form.Item name="algorithm" label="选择切片算法" rules={[{ required: true, message: '请选择切片算法!' }]}>
+              <Select
+                placeholder="请选择切片算法"
+                options={splitAlgorithmOptions}
+              />
+            </Form.Item>           
           </Form>
         </div>
       </Modal>
