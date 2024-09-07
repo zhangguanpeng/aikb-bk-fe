@@ -7,10 +7,10 @@ import {
   updateDocStrategy
 } from '@/services/aikb/api';
 // import { arrayToTreeLoop } from '@/utils';
-import { UnorderedListOutlined, UploadOutlined, PlusOutlined, SettingOutlined, PlusCircleOutlined } from '@ant-design/icons';
+import { UploadOutlined } from '@ant-design/icons';
 import type { UploadProps } from 'antd';
 import { Button, Form, Input, message, Modal, Space, Table, InputNumber, Select, Upload } from 'antd';
-import { history, Link } from '@umijs/max';
+import { history } from '@umijs/max';
 import type { FormInstance } from 'antd/es/form';
 import { useForm } from 'antd/es/form/Form';
 import type { ColumnsType } from 'antd/es/table';
@@ -21,6 +21,8 @@ interface DataType {
   key: string;
   id: string;
   name: string;
+  tagIds: string;  // 标签
+  algorithm: string; // 分片算法
   splitStatus: string; // 分片状态，FRESH：未处理，SPLITTING：分片中，SPLIT_COMPLETED：分片完成
   splitCount: string; // 分片数
   tokenNumber: string; // token数
@@ -38,19 +40,6 @@ interface DataType {
 
 const formInModalItemLayout = { labelCol: { span: 5 }, wrapperCol: { span: 19 } };
 
-const options = [
-  {
-    label: 'a10',
-    value: 'a10',
-  }, {
-    label: 'b11',
-    value: 'b11',
-  }, {
-    label: 'c12',
-    value: 'c12'
-  }
-];
-
 const splitAlgorithmOptions = [
   {
     label: '默认算法',
@@ -64,8 +53,6 @@ const DocumentList: React.FC = () => {
   const [formInModal] = Form.useForm();
   const [formInEditTagModal] = Form.useForm();
   const [formInEditStrategyModal] = Form.useForm();
-
-  // const [treeData, setTreeData] = useState([]);
   const [documentData, setDocumentData] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [total, setTotal] = useState(0);
@@ -75,7 +62,6 @@ const DocumentList: React.FC = () => {
   const [editTagModalShow, setEditTagModalShow] = useState(false);
   const [editStrategyModalShow, setEditStrategyModalShow] = useState(false);
   const [currentRecord, setCurrentRecord] = useState({});
-  const [selectedUploadCategory, setSelectedUploadCategory] = useState({});
   const [currentUploadCategory, setCurrentUploadCategory] = useState({});
   const [selectedFileList, setSelectedFileList] = useState([]);
   let fileList = [];
@@ -304,6 +290,10 @@ const DocumentList: React.FC = () => {
           <Space size="middle">
             <a
               onClick={() => {
+                const initFormValues = {
+                  tagIds: record.tagIds
+                };
+                formInEditTagModal.setFieldsValue(initFormValues);
                 setCurrentRecord(record);
                 setEditTagModalShow(true);
               }}
@@ -315,6 +305,10 @@ const DocumentList: React.FC = () => {
           <Space size="middle">
             <a
               onClick={() => {
+                const initFormValues = {
+                  algorithm: record.algorithm
+                };
+                formInEditStrategyModal.setFieldsValue(initFormValues);
                 setCurrentRecord(record);
                 setEditStrategyModalShow(true);
               }}
@@ -507,7 +501,6 @@ const DocumentList: React.FC = () => {
         }}
         onOk={handleEditTagOk}
         width={660}
-        className="create-train-modal"
       >
         <div style={{ paddingTop: '10px' }}>
         <Form

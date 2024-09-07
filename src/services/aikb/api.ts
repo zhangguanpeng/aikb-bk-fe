@@ -127,12 +127,12 @@ export async function downloadDocument(id: string) {
 /** 修改文档标签 PUT /aikb/v1/doc/{docId}/tags?tagIds= */
 export async function updateDocTag(docId: string, params: any) {
   // @ts-ignore
-  return request(`/aikb/v1/doc/${docId}/tags`, {
+  return request(`/aikb/v1/doc/${docId}/tags?tagIds=${params.tagIds}`, {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
     },
-    data: params,
+    // data: params,
     // params: params,
   });
 }
@@ -140,12 +140,12 @@ export async function updateDocTag(docId: string, params: any) {
 /** 修改文档切片算法 PUT /aikb/v1/doc/{docId}/splitAlgorithm?algorithm=? */
 export async function updateDocStrategy(docId: string, params: any) {
   // @ts-ignore
-  return request(`/aikb/v1/doc/${docId}/splitAlgorithm`, {
+  return request(`/aikb/v1/doc/${docId}/splitAlgorithm?algorithm=${params.algorithm}`, {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
     },
-    data: params,
+    // data: params,
   });
 }
 
@@ -164,6 +164,24 @@ export async function updateSingleSplitTag(params: any) {
     headers: {
       'Content-Type': 'application/json',
     },
+    data: params,
+  });
+}
+
+/** 切片图片上传 POST /aikb/v1/split/{splitId}/upload/image */
+export async function uploadSplitImage(splitId: string, params: any) {
+  return request(`/aikb/v1/split/${splitId}/upload/image`, {
+    method: 'POST',
+    headers: {
+      // 'Content-Type': 'multipart/form-data',
+    },
+    transformRequest: [
+      function (data, headers: any) {
+        // 去除post请求默认的Content-Type
+        delete headers.post['Content-Type'];
+        return data;
+      },
+    ],
     data: params,
   });
 }
