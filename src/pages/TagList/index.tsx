@@ -186,6 +186,10 @@ const TagList: React.FC = () => {
   const handleTagOk = () => {
     console.log('formInModal value', formInModal.getFieldsValue());
     const { name, color } = formInModal.getFieldsValue();
+    if (!name) {
+      message.warning('请输入标签名称');
+      return false;
+    }
     const params = {
       name,
       color: typeof color === 'string' ? color : `#${color.toHex().toLocaleUpperCase()}`,

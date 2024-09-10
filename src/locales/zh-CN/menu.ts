@@ -37,6 +37,7 @@ export default {
   'menu.dialogue-test': '对话测试',
   'menu.train-list': '训练管理',
   'menu.user-list': '用户管理',
+  'menu.role-list': '角色管理',
   'menu.profile': '详情页',
   'menu.profile.basic': '基础详情页',
   'menu.profile.advanced': '高级详情页',

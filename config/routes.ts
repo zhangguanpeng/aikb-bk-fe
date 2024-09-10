@@ -102,6 +102,13 @@ export default [
     access: 'canAdmin'
   },
   {
+    name: 'role-list',
+    icon: 'UserSwitchOutlined',
+    path: '/rolelist',
+    component: './RoleList',
+    access: 'canAdmin'
+  },
+  {
     path: '/',
     redirect: '/welcome',
   },

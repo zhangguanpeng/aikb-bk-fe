@@ -153,7 +153,7 @@ export async function updateDocStrategy(docId: string, params: any) {
 export async function getSplitData(docId: string, params: any) {
   return request(`/aikb/v1/split/${docId}`, {
     method: 'GET',
-    // params: params,
+    params: params,
   });
 }
 
@@ -385,10 +385,61 @@ export async function updateUser(id: string, params: any) {
   });
 }
 
+/** 设置用户角色 */
+export async function updateUserRole(id: string, params: any) {
+  // @ts-ignore
+  return request(`/aikb/v1/user/${id}/role`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: params,
+  });
+}
+
 /** 删除用户 */
 export async function deleteUser(id: string) {
   // @ts-ignore
   return request(`/aikb/v1/user/${id}`, {
+    method: 'DELETE',
+  });
+}
+
+/** 角色查询 */
+export async function getRoleData(params: any) {
+  return request('/aikb/v1/role', {
+    method: 'GET',
+    params,
+  });
+}
+
+/** 新增角色 */
+export async function addRole(params: any) {
+  return request('/aikb/v1/role', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: params,
+  });
+}
+
+/** 修改角色 */
+export async function updateRole(id: string, params: any) {
+  // @ts-ignore
+  return request(`/aikb/v1/role/${id}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: params,
+  });
+}
+
+/** 删除角色 */
+export async function deleteRole(id: string) {
+  // @ts-ignore
+  return request(`/aikb/v1/role/${id}`, {
     method: 'DELETE',
   });
 }

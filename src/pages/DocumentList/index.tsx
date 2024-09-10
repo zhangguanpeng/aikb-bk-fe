@@ -9,7 +9,7 @@ import {
 // import { arrayToTreeLoop } from '@/utils';
 import { UploadOutlined } from '@ant-design/icons';
 import type { UploadProps } from 'antd';
-import { Button, Form, Input, message, Modal, Space, Table, InputNumber, Select, Upload } from 'antd';
+import { Button, Form, Input, message, Modal, Space, Table, InputNumber, Select, Upload, Flex, Tag } from 'antd';
 import { history } from '@umijs/max';
 import type { FormInstance } from 'antd/es/form';
 import { useForm } from 'antd/es/form/Form';
@@ -96,10 +96,10 @@ const DocumentList: React.FC = () => {
   }, []);
 
   const fetchDocumentData = (pageInfo: any, formValues: any) => {
-    const { documentName = '', category = '' } = formValues || form.getFieldsValue();
+    const { documentName = '', tags = [] } = formValues || form.getFieldsValue();
     console.log('formValues', formValues);
     const params = {
-      'category.id': category,
+      'tags.id': tags.join(','),
       name: documentName,
       page: pageInfo.page,
       size: pageInfo.size,
@@ -239,6 +239,7 @@ const DocumentList: React.FC = () => {
     fetchDocumentData(pageInfo, null);
   }, []);
 
+
   const columns: ColumnsType<DataType> = [
     {
       title: '文档名称',
@@ -246,6 +247,21 @@ const DocumentList: React.FC = () => {
       key: 'name',
       width: 300,
       render: (text) => <a>{text}</a>,
+    },
+    {
+      title: '标签',
+      dataIndex: 'tags',
+      key: 'tags',
+      width: 50,
+      render: (text, record) => (
+        <Flex gap="4px 0" wrap>
+          {
+            record.tags && record.tags.length > 0 && record.tags.map((tagItem: any) => (
+              <Tag color={tagItem.color}>{tagItem.name}</Tag>
+            ))
+          }
+        </Flex>
+      ),
     },
     {
       title: '分片数',
@@ -280,18 +296,8 @@ const DocumentList: React.FC = () => {
           <Space size="middle">
             <a
               onClick={() => {
-                handleDownloadFile(record.id);
-              }}
-              style={{ paddingRight: '10px' }}
-            >
-              下载
-            </a>
-          </Space>
-          <Space size="middle">
-            <a
-              onClick={() => {
                 const initFormValues = {
-                  tagIds: record.tagIds
+                  tagIds: record.tags ? record.tags.map((item: any) => item.id) : []
                 };
                 formInEditTagModal.setFieldsValue(initFormValues);
                 setCurrentRecord(record);
@@ -326,6 +332,16 @@ const DocumentList: React.FC = () => {
               style={{ paddingRight: '10px' }}
             >
               分片详情
+            </a>
+          </Space>
+          <Space size="middle">
+            <a
+              onClick={() => {
+                handleDownloadFile(record.id);
+              }}
+              style={{ paddingRight: '10px' }}
+            >
+              下载
             </a>
           </Space>
           <Space size="middle">
@@ -403,7 +419,7 @@ const DocumentList: React.FC = () => {
           <Form.Item name="documentName" label="文档名称">
             <Input style={{ width: 200 }} />
           </Form.Item>
-          <Form.Item name="tag" label="标签">
+          <Form.Item name="tags" label="标签">
             <Select
               mode="multiple"
               style={{ width: 200 }}

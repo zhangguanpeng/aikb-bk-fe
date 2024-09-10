@@ -1,5 +1,5 @@
 import { getSplitData, updateSingleSplitTag, uploadSplitImage } from '@/services/aikb/api';
-import { EditOutlined, PlusCircleOutlined, MinusCircleOutlined } from '@ant-design/icons';
+import { EditOutlined, PlusCircleOutlined, MinusCircleOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
 import { Button, Form, Input, message, Modal, Space, Table, Upload } from 'antd';
 import type { UploadProps } from 'antd';
 import { UploadOutlined, SearchOutlined } from '@ant-design/icons';
@@ -20,7 +20,6 @@ const formInModalItemLayout = { labelCol: { span: 3 }, wrapperCol: { span: 20 } 
 
 const SplitList: React.FC = () => {
   const [formInEditSingleModal] = Form.useForm();
-  const [queryForm] = Form.useForm();
   const [splitDetailModalShow, setSplitDetailModalShow] = useState(false);
   const [splitEditSingleModalShow, setSplitEidtSingleModalShow] = useState(false);
   const [splitEditMutipleModalShow, setSplitEidtMutipleModalShow] = useState(false);
@@ -36,11 +35,10 @@ const SplitList: React.FC = () => {
   let fileList = [];
 
   const fetchSplitData = (pageInfo: any) => {
-    const queryParams = queryForm.getFieldsValue();
     const params = {
       content: '',
       ...pageInfo,
-      sort: 'createdDate,desc',
+      sort: 'createTime,desc',
     };
 
     getSplitData(history?.location?.state.documentId, params).then((res) => {
@@ -125,6 +123,7 @@ const SplitList: React.FC = () => {
           <a
             onClick={() => {
               // handleUpdateQa('edit', record);
+              console.log('record', record);
               setCurrentRecord(record);
               setSplitDetailModalShow(true);
             }}
@@ -168,6 +167,11 @@ const SplitList: React.FC = () => {
       console.log('fileList', fileList);
       return false;
     },
+    onChange: ({ fileList }) => {
+      console.log('onchange fileList', fileList);
+      // @ts-ignore
+      setSelectedFileList(fileList);
+    },
     customRequest(info: any) {
       console.log('upload info', info);
 
@@ -188,6 +192,9 @@ const SplitList: React.FC = () => {
         .catch(() => {
           message.error(`${info.file.name} 上传失败.`);
         });
+    },
+    onRemove: (file) => {
+      console.log('remove file', file);
     },
     maxCount: 50,
     showUploadList: true,
@@ -304,6 +311,10 @@ const SplitList: React.FC = () => {
           icon={<EditOutlined />}
           onClick={() => {
             // handleUpdateQa('add', null);
+            if (selectedRows.length < 1) {
+              message.warning('请先选择表格分片');
+              return false;
+            }
             setSelectedRows4Edit(JSON.parse(JSON.stringify(selectedRows)));
             setSplitEidtMutipleModalShow(true);
           }}
@@ -345,9 +356,19 @@ const SplitList: React.FC = () => {
             <OkBtn />
           </>
         )}
+        className='split-detail-modal'
       >
         <div style={{ paddingTop: '10px' }}>
-          {currentRecord?.content}
+          <div className='text-content'>
+            {currentRecord?.content}
+          </div>
+          <div className='image-content'>
+            {
+              currentRecord.imageList?.map((imageItem: any) => (
+                <img src={`aikb/v1/split/${currentRecord.id}/image/${imageItem.thumbnailFileUrl}`} />
+              ))
+            }
+          </div>
         </div>
       </Modal>
       <Modal
@@ -375,7 +396,18 @@ const SplitList: React.FC = () => {
             <Form.Item name="content" label="切片内容" >
               <Input.TextArea rows={10} />
             </Form.Item>
-            <Form.Item name="imgs" label="图片" >
+            {
+              currentRecord.imageList && currentRecord.imageList.length > 0 && (
+                <Form.Item name="uploadedImages" label="已有图片" >
+                  {
+                    currentRecord.imageList?.map((imageItem: any) => (
+                      <img src={`aikb/v1/split/${currentRecord.id}/image/${imageItem.thumbnailFileUrl}`} style={{marginRight: '5px'}} />
+                    ))
+                  }
+                </Form.Item>
+              )
+            }
+            <Form.Item name="imgs" label="上传图片" >
               <Upload {...uploadImageProps}>
                 <Button icon={<SearchOutlined />}>选择图片</Button>
               </Upload>
@@ -387,7 +419,7 @@ const SplitList: React.FC = () => {
       <Modal
         title='批量编辑分片'
         open={splitEditMutipleModalShow}
-        width={800}
+        width={880}
         onCancel={() => {
           setSelectedRows4Edit(JSON.parse(JSON.stringify(selectedRows)));
           setSplitEidtMutipleModalShow(false);
@@ -395,18 +427,33 @@ const SplitList: React.FC = () => {
         onOk={handleBatchEditSplit}
         className='split-edit-mutiple-modal'
       >
+        <div className='note'>
+          <ExclamationCircleOutlined />
+          <span className='text'>左侧为原切片内容，右侧可进行切片自由编辑（拆分与合并）</span>
+          </div>
         <div className='modal-content'>
-          {
-            selectedRows4Edit.map((rowItem: any, index: number) => (
-              <div key={rowItem.id} className='split-item'>
-                <Input.TextArea rows={8} value={rowItem.content} onChange={e => { handleSplitContentChange(e.target.value, index) }} />
-                <div className='split-action-btns'>
-                  <Button type="link" size='small' icon={<PlusCircleOutlined />} onClick={() => { handleAddSplit(index) }}>添加分片</Button>
-                  <Button type="link" size='small' icon={<MinusCircleOutlined />} onClick={() => { handleRemoveSplit(index) }} danger>删除分片</Button>
+          <div className='left'>
+            {
+              selectedRows.map((rowItem: any) => (
+                <div key={rowItem.id} className='split-item-content'>
+                  {rowItem.content}
                 </div>
-              </div>
-            ))
-          }
+              ))
+            }
+          </div>
+          <div className='right'>
+            {
+              selectedRows4Edit.map((rowItem: any, index: number) => (
+                <div key={rowItem.id} className='split-item-edit'>
+                  <Input.TextArea rows={8} value={rowItem.content} onChange={e => { handleSplitContentChange(e.target.value, index) }} />
+                  <div className='split-action-btns'>
+                    <Button type="link" size='small' icon={<PlusCircleOutlined />} onClick={() => { handleAddSplit(index) }}>添加分片</Button>
+                    <Button type="link" size='small' icon={<MinusCircleOutlined />} onClick={() => { handleRemoveSplit(index) }} danger>删除分片</Button>
+                  </div>
+                </div>
+              ))
+            }
+          </div>
         </div>
       </Modal>
     </div>
