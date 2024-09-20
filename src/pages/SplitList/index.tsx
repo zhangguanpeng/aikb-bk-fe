@@ -1,11 +1,24 @@
 import { getSplitData, updateSingleSplitTag, uploadSplitImage } from '@/services/aikb/api';
 import { EditOutlined, PlusCircleOutlined, MinusCircleOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
-import { Button, Form, Input, message, Modal, Space, Table, Upload } from 'antd';
+import { Button, Form, Input, message, Modal, Space, Table } from 'antd';
 import type { UploadProps } from 'antd';
-import { UploadOutlined, SearchOutlined } from '@ant-design/icons';
+// import { UploadOutlined, SearchOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import React, { useEffect, useState } from 'react';
+import ReactMarkdown from 'react-markdown';
+// import htmlParser from 'react-markdown';
+import remarkMath from 'remark-math';
+import rehypeKatex from 'rehype-katex';
+// import MDEditor, { commands } from "@uiw/react-md-editor";
+import { MdEditor } from 'md-editor-rt';
+// import axios from 'axios';
+import 'md-editor-rt/lib/style.css';
+// import {
+// 	getCommands,
+// 	getExtraCommands,
+// } from "@uiw/react-md-editor/commands-cn";
 import { history } from '@umijs/max';
+import 'katex/dist/katex.min.css';
 import './index.less';
 
 interface DataType {
@@ -17,6 +30,7 @@ interface DataType {
 }
 
 const formInModalItemLayout = { labelCol: { span: 3 }, wrapperCol: { span: 20 } };
+// let fileList: any = [];
 
 const SplitList: React.FC = () => {
   const [formInEditSingleModal] = Form.useForm();
@@ -31,14 +45,13 @@ const SplitList: React.FC = () => {
   const [total, setTotal] = useState(0);
   const [currentRecord, setCurrentRecord] = useState({});
   const [selectedFileList, setSelectedFileList] = useState([]);
-
-  let fileList = [];
+  const [splitContent, setSplitContent] = useState('');
 
   const fetchSplitData = (pageInfo: any) => {
     const params = {
       content: '',
       ...pageInfo,
-      sort: 'createTime,desc',
+      sort: 'splitNumber,ASC',
     };
 
     getSplitData(history?.location?.state.documentId, params).then((res) => {
@@ -65,6 +78,50 @@ const SplitList: React.FC = () => {
   //       message.error('删除失败');
   //     });
   // };
+
+  const onUploadImg = async (files: any, callback: any) => {
+    // const res = await Promise.all(
+    //   files.map((file: any) => {
+    //     return new Promise((rev, rej) => {
+    //       const form = new FormData();
+    //       form.append('file', file);
+    //       axios.post('/api/img/upload', form, {
+    //           headers: {
+    //             'Content-Type': 'multipart/form-data'
+    //           }
+    //         })
+    //         .then((res: any) => rev(res))
+    //         .catch((error: any) => rej(error));
+    //     });
+    //   })
+    // )
+    let formData = new FormData();
+    files.forEach((file: any) => {
+      formData.append(`imageList`, file);
+    });
+    // formData.append(`imageList`, file);
+    uploadSplitImage(currentRecord.id, formData)
+      .then((res: any) => {
+        console.log('上传图片res', res);
+        message.success('上传成功');
+        setUploadedImages(res.payload);
+        let newSplitContent = splitContent;
+        res.payload.forEach((imgItem: any) => {
+          newSplitContent += `![](aikb/v1/split/image/${imgItem.thumbnailFileUrl})`
+        });
+        setSplitContent(newSplitContent);
+        // setSelectedFileList([]);
+        // const pageInfo = {
+        //   page: 1,
+        //   size: 10,
+        // };
+        // fetchSplitData(pageInfo);
+      })
+      .catch(() => {
+        message.error('上传失败');
+        // setSelectedFileList([]);
+      });
+  };
 
   const customRequest = () => {
     console.log('selectedFileList', selectedFileList);
@@ -112,12 +169,12 @@ const SplitList: React.FC = () => {
       dataIndex: 'content',
       key: 'content',
       // width: 200,
-      render: (text) => <span>{text.length > 100 ? `${text.substr(0, 100)}...` : text}</span>,
+      render: (text) => <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>{text.length > 100 ? `${text.substr(0, 100)}...` : text}</ReactMarkdown>,
     },
     {
       title: '操作',
       key: 'action',
-      width: 200,
+      width: 150,
       render: (_, record: any) => (
         <Space size="middle">
           <a
@@ -136,6 +193,7 @@ const SplitList: React.FC = () => {
                 content: record.content
               };
               formInEditSingleModal.setFieldsValue(initFormValues);
+              setSplitContent(record.content);
               setCurrentRecord(record);
               setSplitEidtSingleModalShow(true);
             }}
@@ -158,19 +216,20 @@ const SplitList: React.FC = () => {
   const uploadImageProps: UploadProps = {
     name: 'file',
     accept: '.png,.jpg,.jpeg',
-    beforeUpload: (file) => {
+    beforeUpload: (file, fileList) => {
+      console.log('fileList1', fileList);
       console.log('beforeUpload file', file);
       // @ts-ignore
-      fileList = [...fileList, file];
+      // fileList = [...fileList, file];
       // @ts-ignore
       setSelectedFileList(fileList);
-      console.log('fileList', fileList);
+      // console.log('fileList2', fileList);
       return false;
     },
     onChange: ({ fileList }) => {
       console.log('onchange fileList', fileList);
       // @ts-ignore
-      setSelectedFileList(fileList);
+      // setSelectedFileList(fileList);
     },
     customRequest(info: any) {
       console.log('upload info', info);
@@ -360,21 +419,24 @@ const SplitList: React.FC = () => {
       >
         <div style={{ paddingTop: '10px' }}>
           <div className='text-content'>
-            {currentRecord?.content}
+            <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>
+              {currentRecord?.content}
+            </ReactMarkdown>
           </div>
-          <div className='image-content'>
+          {/* <div className='image-content'>
             {
-              currentRecord.imageList?.map((imageItem: any) => (
-                <img src={`aikb/v1/split/${currentRecord.id}/image/${imageItem.thumbnailFileUrl}`} />
-              ))
+              currentRecord.imageList?.map((imageItem: any) => {
+                return imageItem.thumbnailFileUrl ? <img src={`aikb/v1/split/image/${imageItem.thumbnailFileUrl}`} style={{marginRight: '5px'}} /> : null
+              })
             }
-          </div>
+          </div> */}
         </div>
       </Modal>
       <Modal
         title="编辑切片"
         open={splitEditSingleModalShow}
         onCancel={() => {
+          // fileList = [];
           setSelectedFileList([]);
           setSplitEidtSingleModalShow(false);
         }}
@@ -394,25 +456,43 @@ const SplitList: React.FC = () => {
             form={formInEditSingleModal}
           >
             <Form.Item name="content" label="切片内容" >
-              <Input.TextArea rows={10} />
+              {/* <Input.TextArea rows={10} /> */}
+              {/* <MDEditor
+                commands={[commands.image]}
+                enableScroll={false}
+                extraCommands={[...getExtraCommands()]}
+                height="40vh"
+                onChange={(val) => {
+                  if (val) setSplitContent(val);
+                }}
+                preview="edit"
+                value={splitContent}
+              /> */}
+              <MdEditor modelValue={splitContent} toolbars={['image']} onUploadImg={onUploadImg} />
             </Form.Item>
-            {
+            {/* {
               currentRecord.imageList && currentRecord.imageList.length > 0 && (
                 <Form.Item name="uploadedImages" label="已有图片" >
                   {
-                    currentRecord.imageList?.map((imageItem: any) => (
-                      <img src={`aikb/v1/split/${currentRecord.id}/image/${imageItem.thumbnailFileUrl}`} style={{marginRight: '5px'}} />
-                    ))
+                    currentRecord.imageList?.map((imageItem: any) => {
+                      return imageItem.thumbnailFileUrl ? (
+                        <Image
+                          width={100}
+                          src={`aikb/v1/split/${currentRecord.id}/image/${imageItem.thumbnailFileUrl}`}
+                          style={{marginRight: '5px'}}
+                        />
+                      ) : '无'
+                    })
                   }
                 </Form.Item>
               )
-            }
-            <Form.Item name="imgs" label="上传图片" >
+            } */}
+            {/* <Form.Item name="imgs" label="上传图片" >
               <Upload {...uploadImageProps}>
                 <Button icon={<SearchOutlined />}>选择图片</Button>
               </Upload>
               <Button icon={<UploadOutlined />} style={{marginTop: '10px'}} type='primary' onClick={customRequest}>点击上传</Button>
-            </Form.Item>
+            </Form.Item> */}
           </Form>
         </div>
       </Modal>

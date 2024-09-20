@@ -1,6 +1,6 @@
-import { addUser, deleteUser, getUserData, updateUser } from '@/services/aikb/api';
+import { addUser, deleteUser, getUserData, updateUser, updatePassword, getRoleData } from '@/services/aikb/api';
 import { PlusOutlined, ExclamationCircleFilled } from '@ant-design/icons';
-import { Button, Form, Input, message, Modal, Space, Table } from 'antd';
+import { Button, Form, Input, message, Modal, Space, Table, Select } from 'antd';
 import type { FormInstance } from 'antd/es/form';
 import type { ColumnsType } from 'antd/es/table';
 import React, { useEffect, useState } from 'react';
@@ -19,11 +19,14 @@ interface DataType {
 const UserList: React.FC = () => {
   const formRef = React.useRef<FormInstance>(null);
   const [formInModal] = Form.useForm();
+  const [editPasswordForm] = Form.useForm();
   const [queryForm] = Form.useForm();
   const [userModalShow, setUserModalShow] = useState(false);
+  const [editPasswordModalShow, setEditPasswordModalShow] = useState(false);
   const [actionType, setActionType] = useState('add');
   const [currentPage, setCurrentPage] = useState(1);
-  const [qaData, setQaData] = useState([]);
+  const [userDate, setUserData] = useState([]);
+  const [roleData, setRoleData] = useState([]);
   const [total, setTotal] = useState(0);
   const [currentRecord, setCurrentRecord] = useState({});
 
@@ -31,6 +34,8 @@ const UserList: React.FC = () => {
     const initFormValues = {
       username: action === 'add' ? '' : record.username,
       password: action === 'add' ? '' : record.password,
+      phoneNumber: action === 'add' ? '' : record.phoneNumber,
+      roles: action === 'add' ? [] : record.roleList?.map( (item: any) => item.id),
     };
     formInModal.setFieldsValue(initFormValues);
     setActionType(action);
@@ -53,9 +58,32 @@ const UserList: React.FC = () => {
 
     getUserData(params)
       .then((res) => {
-        console.log('定制QAres', res);
-        setQaData(res.payload);
+        console.log('用户res', res);
+        setUserData(res.payload);
         setTotal(res.totalElements);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
+
+  const fetchRoleData = () => {
+    const params = {
+      name: '',
+      sort: 'createdDate,desc',
+    };
+
+    getRoleData(params)
+      .then((res) => {
+        console.log('角色res', res);
+        const roleData = res.payload.map((item: any) => {
+          const obj = {
+            value: item.id,
+            label: item.name
+          };
+          return obj;
+        });
+        setRoleData(roleData);
       })
       .catch((error) => {
         console.log(error);
@@ -124,6 +152,14 @@ const UserList: React.FC = () => {
           >
             编辑
           </a>
+          {/* <a
+            onClick={() => {
+              setCurrentRecord(record);
+              setEditPasswordModalShow(true);
+            }}
+          >
+            修改密码
+          </a> */}
           <a
             style={{ color: 'red' }}
             onClick={() => {
@@ -143,18 +179,33 @@ const UserList: React.FC = () => {
       size: 10,
     };
     fetchUserData(pageInfo);
+    fetchRoleData();
   }, []);
 
   const handleAddUserOk = () => {
     console.log('formInModal value', formInModal.getFieldsValue());
-    const { username, password } = formInModal.getFieldsValue();
-    if (!username || !password) {
+    const { username, password, phoneNumber = '', roles = [] } = formInModal.getFieldsValue();
+    console.log('已选择roles', roles);
+    if (actionType === 'add' && (!username || !password)) {
       message.warning('用户名和密码不能为空');
       return;
     }
+    if (actionType !== 'add' && !username) {
+      message.warning('用户名不能为空');
+      return;
+    }
+    const roleIds = roles.map((item: number) => {
+      const obj = {
+        id: item,
+      };
+      return obj;
+    });
     const params = {
+      name: 'admin',
       username,
       password,
+      phoneNumber: phoneNumber ? phoneNumber.toString() : '',
+      roleList: roleIds
     };
 
     const { id = '' } = currentRecord;
@@ -196,6 +247,37 @@ const UserList: React.FC = () => {
           });
         });
     }
+  };
+
+  const handleUpdatePasswordOk = () => {
+    console.log('formInModal value', editPasswordForm.getFieldsValue());
+    const { oldPasswrod, newPasswrod } = editPasswordForm.getFieldsValue();
+    if (!oldPasswrod || !newPasswrod) {
+      message.warning('原密码和新密码不能为空');
+      return;
+    }
+    const params = {
+      oldPasswrod,
+      newPasswrod,
+    };
+
+    updatePassword(params)
+        .then((res) => {
+          message.success('修改成功');
+          setEditPasswordModalShow(false);
+          const pageInfo = {
+            page: 1,
+            size: 10,
+          };
+          fetchUserData(pageInfo);
+        })
+        .catch((error) => {
+          console.log(error);
+          message.error({
+            content: `修改失败：${error.response.data.code}`,
+            style: {width: '600px', margin: '0 auto'}
+          });
+        });
   };
 
   const handlePageChange = (page: number, pageSize: number) => {
@@ -253,7 +335,7 @@ const UserList: React.FC = () => {
       <div className="common-box">
         <Table
           columns={columns}
-          dataSource={qaData}
+          dataSource={userDate}
           rowKey={(record: any) => record.id}
           pagination={{
             showTotal: () => {
@@ -285,6 +367,41 @@ const UserList: React.FC = () => {
             </Form.Item>
             <Form.Item name="password" label="密&nbsp; &nbsp;&nbsp;码" rules={[{ required: true, message: '请输入密码' }]}>
               <Input placeholder='请输入密码' />
+            </Form.Item>
+            <Form.Item name="phoneNumber" label="手机号" rules={[{ required: true, message: '请输入手机号' }]}>
+              <Input placeholder='请输入手机号' />
+            </Form.Item>
+            <Form.Item name="roles" label="角&nbsp; &nbsp;&nbsp;色" rules={[{ required: true, message: '请选择角色' }]}>
+              <Select
+                mode="multiple"
+                // style={{ width: 200 }}
+                placeholder="请选择角色"
+                defaultValue={[]}
+                // onChange={handleChange}
+                options={roleData}
+              />
+            </Form.Item>
+          </Form>
+        </div>
+      </Modal>
+      <Modal
+        title="修改密码"
+        open={editPasswordModalShow}
+        onCancel={() => {
+          setEditPasswordModalShow(false);
+        }}
+        onOk={handleUpdatePasswordOk}
+      >
+        <div style={{ paddingTop: '10px' }}>
+          <Form
+            form={editPasswordForm}
+            name="control-ref"
+          >
+            <Form.Item name="oldPasswrod" label="原密码" rules={[{ required: true, message: '请输入原密码' }]}>
+              <Input placeholder='请输入原密码' />
+            </Form.Item>
+            <Form.Item name="newPasswrod" label="新密码" rules={[{ required: true, message: '请输入新密码' }]}>
+              <Input placeholder='请输入新密码' />
             </Form.Item>
           </Form>
         </div>

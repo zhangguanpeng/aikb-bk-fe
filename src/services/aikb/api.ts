@@ -356,7 +356,7 @@ export async function downloadTrainModel(id: string) {
 
 /** 用户查询 */
 export async function getUserData(params: any) {
-  return request('/aikb/v1/user', {
+  return request('/aikb/v1/admin/user', {
     method: 'GET',
     params,
   });
@@ -364,7 +364,7 @@ export async function getUserData(params: any) {
 
 /** 新增用户 */
 export async function addUser(params: any) {
-  return request('/aikb/v1/user', {
+  return request('/aikb/v1/admin/user', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -376,7 +376,19 @@ export async function addUser(params: any) {
 /** 修改用户 */
 export async function updateUser(id: string, params: any) {
   // @ts-ignore
-  return request(`/aikb/v1/user/${id}`, {
+  return request(`/aikb/v1/admin/user/${id}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: params,
+  });
+}
+
+/** 修改密码 */
+export async function updatePassword(params: any) {
+  // @ts-ignore
+  return request('/aikb/v1/user/changePassword', {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',

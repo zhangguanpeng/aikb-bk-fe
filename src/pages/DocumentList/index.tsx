@@ -130,7 +130,7 @@ const DocumentList: React.FC = () => {
     });
     // @ts-ignore
     // formData.append(`categoryId`, currentUploadCategory.key);
-    formData.append(`algorithm`, algorithm);
+    formData.append(`splitAlgorithm`, algorithm);
     formData.append(`tagIds`, tagIds);
 
     uploadDocument(formData)

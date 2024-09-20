@@ -42,9 +42,8 @@ const RoleList: React.FC = () => {
   const fetchRoleData = (pageInfo: any) => {
     const queryParams = queryForm.getFieldsValue();
     const params = {
-      id: '',
       name: queryParams ? queryParams.name : '',
-      ...pageInfo,
+      // ...pageInfo,
       sort: 'createdDate,desc',
     };
 
@@ -76,7 +75,7 @@ const RoleList: React.FC = () => {
 
   const showDeleteConfirm = (id: string) => {
     confirm({
-      title: '确定要删除该用户吗？',
+      title: '确定要删除该角色吗？',
       icon: <ExclamationCircleFilled />,
       content: '',
       okText: '确定',
