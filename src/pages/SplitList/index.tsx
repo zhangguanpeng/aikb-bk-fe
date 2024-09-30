@@ -6,12 +6,9 @@ import type { UploadProps } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import React, { useEffect, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
-// import htmlParser from 'react-markdown';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
-// import MDEditor, { commands } from "@uiw/react-md-editor";
 import { MdEditor } from 'md-editor-rt';
-// import axios from 'axios';
 import 'md-editor-rt/lib/style.css';
 // import {
 // 	getCommands,
@@ -394,6 +391,7 @@ const SplitList: React.FC = () => {
             showTotal: () => {
               return `共有${total}条数据`;
             },
+            showQuickJumper: true,
             showSizeChanger: true,
             onChange: handlePageChange,
             onShowSizeChange: handlePageChange,
@@ -468,7 +466,7 @@ const SplitList: React.FC = () => {
                 preview="edit"
                 value={splitContent}
               /> */}
-              <MdEditor modelValue={splitContent} toolbars={['image']} onUploadImg={onUploadImg} />
+              <MdEditor modelValue={splitContent} toolbars={['image']} noImgZoomIn onUploadImg={onUploadImg} />
             </Form.Item>
             {/* {
               currentRecord.imageList && currentRecord.imageList.length > 0 && (

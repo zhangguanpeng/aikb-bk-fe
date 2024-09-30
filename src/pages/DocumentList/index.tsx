@@ -97,7 +97,7 @@ const DocumentList: React.FC = () => {
 
   const fetchDocumentData = (pageInfo: any, formValues: any) => {
     const { documentName = '', tags = [] } = formValues || form.getFieldsValue();
-    console.log('formValues', formValues);
+    // console.log('formValues', formValues);
     const params = {
       'tags.id': tags.join(','),
       name: documentName,
@@ -107,7 +107,7 @@ const DocumentList: React.FC = () => {
     };
     getDocumentData(params)
       .then((res) => {
-        console.log('文档列表res', res);
+        // console.log('文档列表res', res);
         setDocumentData(res.payload);
         setTotal(res.totalElements);
       })
@@ -117,7 +117,7 @@ const DocumentList: React.FC = () => {
   };
 
   const customRequest = () => {
-    console.log('formInModal', formInModal.getFieldsValue());
+    // console.log('formInModal', formInModal.getFieldsValue());
     const { tagIds, algorithm = 'default' } = formInModal.getFieldsValue();
     console.log('selectedFileList', selectedFileList);
     if (selectedFileList.length < 1) {
