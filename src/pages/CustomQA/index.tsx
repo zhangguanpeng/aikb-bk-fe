@@ -1,9 +1,14 @@
-import { addCustomQa, deleteCustomQa, getCustomQaData, updateCustomQa } from '@/services/aikb/api';
+import { addCustomQa, deleteCustomQa, getCustomQaData, updateCustomQa, uploadQaImage } from '@/services/aikb/api';
 import { PlusOutlined } from '@ant-design/icons';
 import { Button, Form, Input, message, Modal, Space, Table } from 'antd';
 import type { FormInstance } from 'antd/es/form';
 import type { ColumnsType } from 'antd/es/table';
 import React, { useEffect, useState } from 'react';
+import ReactMarkdown from 'react-markdown';
+import remarkMath from 'remark-math';
+import rehypeKatex from 'rehype-katex';
+import { MdEditor } from 'md-editor-rt';
+import 'md-editor-rt/lib/style.css';
 import './index.less';
 
 interface DataType {
@@ -24,6 +29,7 @@ const CustomQA: React.FC = () => {
   const [qaData, setQaData] = useState([]);
   const [total, setTotal] = useState(0);
   const [currentRecord, setCurrentRecord] = useState({});
+  const [splitContent, setSplitContent] = useState('');
 
   const handleUpdateQa = (action: string, record: any) => {
     const initFormValues = {
@@ -31,10 +37,12 @@ const CustomQA: React.FC = () => {
       answer: action === 'add' ? '' : record.answer,
     };
     formInModal.setFieldsValue(initFormValues);
+    setSplitContent('');
     setActionType(action);
     setQaModalShow(true);
     if (action === 'edit') {
       setCurrentRecord(record);
+      setSplitContent(record.answer);
     }
   };
 
@@ -86,6 +94,11 @@ const CustomQA: React.FC = () => {
       title: '回答',
       dataIndex: 'answer',
       key: 'answer',
+      render: (text) => (
+        <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>
+          {text}
+        </ReactMarkdown>
+      )
     },
     {
       title: '操作',
@@ -121,12 +134,33 @@ const CustomQA: React.FC = () => {
     fetchQaData(pageInfo);
   }, []);
 
+  const onUploadImg = async (files: any, callback: any) => {
+    let formData = new FormData();
+    files.forEach((file: any) => {
+      formData.append(`imageList`, file);
+    });
+    // formData.append(`imageList`, file);
+    uploadQaImage(formData)
+      .then((res: any) => {
+        console.log('上传图片res', res);
+        message.success('上传成功');
+        let newSplitContent = splitContent;
+        res.payload.forEach((imgItem: any) => {
+          newSplitContent += `![](aikb/v1/qapair/image/${imgItem.thumbnailFileUrl})`
+        });
+        setSplitContent(newSplitContent);
+      })
+      .catch(() => {
+        message.error('上传失败');
+      });
+  };
+
   const handleAddQaOk = () => {
     console.log('formInModal value', formInModal.getFieldsValue());
-    const { question, answer } = formInModal.getFieldsValue();
+    const { question } = formInModal.getFieldsValue();
     const params = {
       question,
-      answer,
+      answer: splitContent,
     };
 
     const { id = '' } = currentRecord;
@@ -243,6 +277,7 @@ const CustomQA: React.FC = () => {
           setQaModalShow(false);
         }}
         onOk={handleAddQaOk}
+        width={800}
       >
         <div style={{ paddingTop: '10px' }}>
           <Form
@@ -254,7 +289,8 @@ const CustomQA: React.FC = () => {
               <Input.TextArea />
             </Form.Item>
             <Form.Item name="answer" label="回答">
-              <Input.TextArea />
+              {/* <Input.TextArea /> */}
+              <MdEditor modelValue={splitContent} onChange={(value) => { setSplitContent(value) }} toolbars={['image']} noImgZoomIn onUploadImg={onUploadImg} />
             </Form.Item>
           </Form>
         </div>

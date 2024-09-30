@@ -1,6 +1,7 @@
 import { getCategoryData, getDocumentData, getTextData, getTagData } from '@/services/aikb/api';
 import { arrayToTreeLoop } from '@/utils';
-import { Button, Form, Input, Select, Space, Spin, TreeSelect } from 'antd';
+import { Button, Form, Input, Select, Space, Spin, Modal } from 'antd';
+import { RightOutlined } from '@ant-design/icons';
 import { fetchEventSource } from '@microsoft/fetch-event-source';
 import type { FormInstance } from 'antd/es/form';
 import { useForm } from 'antd/es/form/Form';
@@ -18,7 +19,9 @@ const ChatTest: React.FC = () => {
   const [tagData, setTagData] = useState([]);
   const [documentOptions, setDocumentOptions] = useState([]);
   const [searchText, setSearchText] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('');
+  // const [selectedCategory, setSelectedCategory] = useState('');
+  const [splitDetailModalShow, setSplitDetailModalShow] = useState(false);
+  const [currentSplitContent, setCurrentSplitContent] = useState('');
   const [knowledgeData, setKnowledgeData] = useState([]);
   const [textContent, setTextContent] = useState('');
   const [textReference, setTextReference] = useState([]);
@@ -102,6 +105,11 @@ const ChatTest: React.FC = () => {
 
   const handleDocChange = () => {};
 
+  const handleSplitDetail = (content: string) => {
+    setCurrentSplitContent(content);
+    setSplitDetailModalShow(true);
+  };
+
   const getSearchAnswer = () => {
     console.log('form.getFieldsValue()', form.getFieldsValue());
     const { tags = [], documentId } = form.getFieldsValue();
@@ -126,10 +134,6 @@ const ChatTest: React.FC = () => {
       });
   };
 
-  // {"type":"REFERENCE","body":"[{\"docId\":1105,\"title\":\"《城市建设工程地下水控制技术规范》.docx\",\"content\":\"E.3.3地下水溶质运移数值模拟应在地下水流场模拟基础上进行。地下水溶质运移数值模型包括水流模型和溶质运移模型两部分。![](/aikb/v1/split/image/m:1105-efd3d2bad4374a45be8c862e80f3f32c.png){width\\u003d\\\"6.0in\\\"\\nheight\\u003d\\\"0.6083333333333333in\\\"}![](/aikb/v1/split/image/m:1105-0479c64f6245444695344439b81ec0b5.png){width\\u003d\\\"6.0in\\\"\\nheight\\u003d\\\"1.0243055555555556in\\\"}式中:$R$------迟滞系数。![](/aikb/v1/split/image/m:1105-da1104a9095a40158a141115e5257209.png){width\\u003d\\\"2.880249343832021in\\\"\\nheight\\u003d\\\"3.937007874015748in\\\"}初始条件:$$\\\\begin{matrix}\\n\\\\left{ \\\\begin{matrix}\\nC(x,y,z,t) \\u003d C_{0}(x,y,z) \\\\\\n(x,y,z) \\\\in \\\\Omega \\\\\\nt \\u003d 0 \\\\\\n\\\\end{matrix} \\\\right.\\\\ #(E.3.3 - 3) \\\\\\n\\\\end{matrix}$$式中:$C_{0}(x,y,z)$------已知浓度分布;  \\n$\\\\Omega$------模型模拟区域。  \\n边界条件:  \\n(1)第一类边界：给定浓度边界$$\\\\begin{matrix}\\n\\\\left{ \\\\begin{matrix}\\nC(x,y,z,t) \\\\mid \\\\Gamma_{1} \\u003d c(x,y,z,t) \\\\\\n(x,y,z) \\\\in \\\\Gamma_{1} \\\\\\nt \\\\geqq 0 \\\\\\n\\\\end{matrix} \\\\right.\\\\ #(E.3.3 - 4) \\\\\\n\\\\end{matrix}$$式中:$\\\\Gamma_{1}$---给定浓度边界；  \\n$c(x,y,z,t)$------定浓度边界上的浓度分布。  \\n(2)第二类边界：给定弥散通量边界![](/aikb/v1/split/image/m:1105-ed6abbff0905430db3d4775a6b7a7bc8.png){width\\u003d\\\"6.0in\\\"\\nheight\\u003d\\\"1.5916666666666666in\\\"}式中:$\\\\Gamma_{2}$---通量边界；  \\n$f_{i}(x,y,z,t)$------边界$\\\\Gamma_{2}$上已知的弥散通量函数。  \\n(3)第三类边界:给定溶质通量边界![](/aikb/v1/split/image/m:1105-995160afdd0942f9acafd22c39382d23.png){width\\u003d\\\"6.0in\\\"\\nheight\\u003d\\\"1.4916666666666667in\\\"}式中:$\\\\Gamma_{3}$---混合边界;$$g(x,y,z,t) - \\\\Gamma_{3}\\\\text{上已知的对} - - - \\\\text{-弥散总的通量函数。}$$\\n\",\"score\":80.0274},{\"docId\":1105,\"title\":\"《城市建设工程地下水控制技术规范》.docx\",\"content\":\"9\\\\.3.12施工降水回灌过程中应加强技术管理，应按表9.3.12中的技术要求进行操作。![](/aikb/v1/split/image/m:1105-29800284979b42b19ee67e972311f115.png){width\\u003d\\\"6.0in\\\"\\nheight\\u003d\\\"2.922222222222222in\\\"}\\n\",\"score\":79.530266},{\"docId\":1105,\"title\":\"《城市建设工程地下水控制技术规范》.docx\",\"content\":\"E.2.3污染物连续注入含水层---平面连续点源模型如下:![](/aikb/v1/split/image/m:1105-73deb04b000c4f9d97f22086c9079114.png){width\\u003d\\\"6.0in\\\"\\nheight\\u003d\\\"1.6861111111111111in\\\"}式中:$x,y$---计算点处的位置坐标;  \\n$t$------时间$(d)$；![](/aikb/v1/split/image/m:1105-9e5b776bed5b45838b2ba844290356cc.jpeg){width\\u003d\\\"6.0in\\\"\\nheight\\u003d\\\"0.4in\\\"}$M$------承压含水层厚度$(m)$；  \\n$m_{t}$------单位时间注入的污染物质量（$\\\\left. \\\\ kg/d \\\\right)$；  \\n$u$------地下水流速度$(m/d)$；  \\n$n$------有效孔隙度；  \\n$D_{L}$------纵向弥散系数$\\\\left( m^{2}/d \\\\right)$;  \\n$D_{T}$---横向弥散系数$\\\\left( m^{2}/d \\\\right)$；  \\n$K_{0}(\\\\beta)$------第二类零阶修正贝塞尔函数;![](/aikb/v1/split/image/m:1105-a71cf8974166446da57207bc5c758208.png){width\\u003d\\\"6.0in\\\"\\nheight\\u003d\\\"1.479861111111111in\\\"}\\n\",\"score\":78.90775},{\"docId\":1105,\"title\":\"《城市建设工程地下水控制技术规范》.docx\",\"content\":\"B.4.2地下水在孔隙介质中的三维空间中流动应采用下列偏微分方程表示：  \\n1控制方程![](/aikb/v1/split/image/m:1105-8163ce8fa13042d7b09c3dd3ab2e9835.png){width\\u003d\\\"6.0in\\\"\\nheight\\u003d\\\"0.7479166666666667in\\\"}式中：$m_{s}$---贮水率$(1/m)$；  \\n$h$------水位(m);  \\n$K_{x},K_{y},K_{z}$------分别为$x,y,z$方向上的渗透系数$(m/d)$；  \\n$t$------时间${}^{(}$);  \\n$W$------源汇项$(1/d)$。  \\n2初始条件$$\\\\begin{matrix}\\n\\\\left{ \\\\begin{matrix}\\nh(x,y,z,t) \\u003d h_{0}(x,y,z) \\\\\\n(x,y,z) \\\\in \\\\Omega \\\\\\nt \\u003d 0 \\\\\\n\\\\end{matrix} \\\\right.\\\\ #(B.4.2 - 2) \\\\\\n\\\\end{matrix}$$式中:$h_{0}(x,y,z)$---初始水位分布;  \\n$\\\\Omega$-模型模拟区域。  \\n3边界条件  \\n1）第一类边界:$$\\\\begin{matrix}\\n\\\\left{ \\\\begin{matrix}\\nh(x,y,z,t) \\\\mid \\\\Gamma_{1} \\u003d h(x,y,z,t) \\\\\\n(x,y,z) \\\\in \\\\Gamma_{1} \\\\\\nt \\\\geq 0 \\\\\\n\\\\end{matrix} \\\\right.\\\\ #(B.4.2 - 3) \\\\\\n\\\\end{matrix}$$式中:$h(x,y,z,t)$---一类边界上的已知水位函数;  \\n$\\\\Gamma_{1}$---------类边界。  \\n2）第二类边界：$$\\\\begin{matrix}\\n\\\\left{ \\\\begin{matrix}\\n\\\\left. \\\\ k\\\\frac{\\\\partial h}{\\\\partial n} \\\\right|{\\\\Gamma{2}} \\u003d q(x,y,z,t) \\\\\\n(x,y,z) \\\\in \\\\Gamma_{2} \\\\\\nt \\\\\\u003e 0 \\\\\\n\\\\end{matrix} \\\\right.\\\\ #(B.4.2 - 4) \\\\\\n\\\\end{matrix}$$式中：$k$------三维空间上的渗透系数张量；$$q(x,y,z,t)——\\\\text{二类边界上已知流量函数;}$$$n$------边界$\\\\Gamma_{2}$的外法线方向；  \\n$\\\\Gamma_{2}$------二类边界  \\n3\\\\)第三类边界:$$\\\\begin{matrix}\\n\\\\left. \\\\ \\\\left( k(h - z)\\\\frac{\\\\partial h}{\\\\partial\\\\bar{n}} + \\\\text{αh} \\\\right) \\\\right|{\\\\Gamma{3}} \\u003d q(x,y,z)#(B.4.2 - 5) \\\\\\n\\\\end{matrix}$$式中：  \\n$\\\\alpha$一已知函数；  \\n$\\\\Gamma_{3}$一三类边界  \\n$k$---三维空间上的渗透系数张量；  \\n$n$---_边界$\\\\Gamma_{3}$的外法线方向；  \\n$q(x,y,z)$---三三类边界上已知的流量函数。  \\n\\n\",\"score\":78.695755},{\"docId\":1105,\"title\":\"《城市建设工程地下水控制技术规范》.docx\",\"content\":\"5\\\\.4.6帷幕桩水泥浆液的水灰比及水泥掺量宜取下表中数值:![](/aikb/v1/split/image/m:1105-e6e809dbdf8442359d26fab3e9de76a9.png){width\\u003d\\\"6.0in\\\"\\nheight\\u003d\\\"2.0944444444444446in\\\"}\\n\",\"score\":78.18595}]"}
-  // {"type":"MESSAGE","body":"液"}
-  // {"type":"MESSAGE","body":"。"}
-
   const getSearchAnswerStream = () => {
     // console.log('form.getFieldsValue()', form.getFieldsValue());
     const { tags = [], documentId } = form.getFieldsValue();
@@ -143,6 +147,8 @@ const ChatTest: React.FC = () => {
       }
     };
 
+    setTextContent('');
+    setTextReference([]);
     setLoading(true);
 
     let delay = 0;
@@ -279,8 +285,18 @@ const ChatTest: React.FC = () => {
                 {textReference.map((referenceItem: any, index) => (
                   <div className="item" key={index}>
                     <div className="head">
-                      <div className="text1">{`检索文档片段${index + 1}`}</div>
-                      <div>
+                      <div className="text1">
+                        <span>{`检索文档片段${index + 1}`}</span>
+                        <a
+                          onClick={() => {
+                            handleSplitDetail(referenceItem.content);
+                          }}
+                        >
+                          查看详情
+                          <RightOutlined />
+                        </a>
+                      </div>
+                      <div className="document">
                         <a
                           onClick={() => {
                             handleDownloadFile(referenceItem.docId);
@@ -315,6 +331,29 @@ const ChatTest: React.FC = () => {
           </div>
         )}
       </div>
+      <Modal
+        title='切片详情'
+        open={splitDetailModalShow}
+        onOk={() => {
+          setSplitDetailModalShow(false);
+        }}
+        width={800}
+        closeIcon={false}
+        footer={(_, { OkBtn, CancelBtn }) => (
+          <>
+            <OkBtn />
+          </>
+        )}
+        className='split-detail-modal'
+      >
+        <div style={{ paddingTop: '10px' }}>
+          <div className='text-content'>
+            <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>
+              {currentSplitContent}
+            </ReactMarkdown>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 };

@@ -1,6 +1,7 @@
 // @ts-ignore
 /* eslint-disable */
 import { request } from '@umijs/max';
+import { getCookie } from '@/utils';
 
 /** 获取用户有权限的类目列表 GET /aikb/v1/category */
 export async function getCategoryData(options?: { [key: string]: any }) {
@@ -171,6 +172,24 @@ export async function updateSingleSplitTag(params: any) {
 /** 切片图片上传 POST /aikb/v1/split/{splitId}/upload/image */
 export async function uploadSplitImage(splitId: string, params: any) {
   return request(`/aikb/v1/split/${splitId}/upload/image`, {
+    method: 'POST',
+    headers: {
+      // 'Content-Type': 'multipart/form-data',
+    },
+    transformRequest: [
+      function (data, headers: any) {
+        // 去除post请求默认的Content-Type
+        delete headers.post['Content-Type'];
+        return data;
+      },
+    ],
+    data: params,
+  });
+}
+
+/** 问答对图片上传 POST /aikb/v1/qapair/upload/image */
+export async function uploadQaImage(params: any) {
+  return request('/aikb/v1/qapair/upload/image', {
     method: 'POST',
     headers: {
       // 'Content-Type': 'multipart/form-data',
@@ -358,6 +377,9 @@ export async function downloadTrainModel(id: string) {
 export async function getUserData(params: any) {
   return request('/aikb/v1/admin/user', {
     method: 'GET',
+    headers: {
+    	'authorization': getCookie('authorization'),
+    },
     params,
   });
 }
@@ -368,6 +390,7 @@ export async function addUser(params: any) {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
+      'authorization': getCookie('authorization'),
     },
     data: params,
   });
@@ -380,6 +403,7 @@ export async function updateUser(id: string, params: any) {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
+      'authorization': getCookie('authorization'),
     },
     data: params,
   });
@@ -392,6 +416,7 @@ export async function updatePassword(params: any) {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
+      'authorization': getCookie('authorization'),
     },
     data: params,
   });
@@ -404,6 +429,7 @@ export async function updateUserRole(id: string, params: any) {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
+      'authorization': getCookie('authorization'),
     },
     data: params,
   });
@@ -414,6 +440,9 @@ export async function deleteUser(id: string) {
   // @ts-ignore
   return request(`/aikb/v1/user/${id}`, {
     method: 'DELETE',
+    headers: {
+    	'authorization': getCookie('authorization'),
+    },
   });
 }
 
@@ -421,6 +450,9 @@ export async function deleteUser(id: string) {
 export async function getRoleData(params: any) {
   return request('/aikb/v1/role', {
     method: 'GET',
+    headers: {
+    	'authorization': getCookie('authorization'),
+    },
     params,
   });
 }
@@ -431,6 +463,7 @@ export async function addRole(params: any) {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
+      'authorization': getCookie('authorization'),
     },
     data: params,
   });
@@ -443,6 +476,7 @@ export async function updateRole(id: string, params: any) {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
+      'authorization': getCookie('authorization'),
     },
     data: params,
   });
@@ -453,6 +487,9 @@ export async function deleteRole(id: string) {
   // @ts-ignore
   return request(`/aikb/v1/role/${id}`, {
     method: 'DELETE',
+    headers: {
+    	'authorization': getCookie('authorization'),
+    },
   });
 }
 

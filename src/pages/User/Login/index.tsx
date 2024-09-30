@@ -146,6 +146,7 @@ const Login: React.FC = () => {
 				});
 				// @ts-ignore
 				setCookie('username', username, 1); // cookie有效期为1天
+				setCookie('authorization', res.headers.authorization, 1); // cookie有效期为1天
 				message.success(defaultLoginSuccessMessage);
 				history.push('/');
 				return;

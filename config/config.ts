@@ -156,4 +156,5 @@ export default defineConfig({
     strategy: 'normal',
   },
   requestRecord: {},
+  esbuildMinifyIIFE: true,
 });

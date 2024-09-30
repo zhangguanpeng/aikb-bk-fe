@@ -90,7 +90,7 @@ export default [
   },
   {
     name: 'custom-qa',
-    icon: 'monitor',
+    icon: 'HighlightOutlined',
     path: '/customqa',
     component: './CustomQA',
   },
