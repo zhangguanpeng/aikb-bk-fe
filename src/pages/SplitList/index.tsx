@@ -104,7 +104,7 @@ const SplitList: React.FC = () => {
         setUploadedImages(res.payload);
         let newSplitContent = splitContent;
         res.payload.forEach((imgItem: any) => {
-          newSplitContent += `![](aikb/v1/split/image/${imgItem.thumbnailFileUrl})`
+          newSplitContent += `![](aikb/v1/split/image/${imgItem.oriImageFileUrl})`
         });
         setSplitContent(newSplitContent);
         // setSelectedFileList([]);
@@ -283,7 +283,7 @@ const SplitList: React.FC = () => {
       setSelectedFileList([]);
       setSplitEidtSingleModalShow(false);
       const pageInfo = {
-        page: 1,
+        page: currentPage,
         size: 10,
       };
       fetchSplitData(pageInfo);
@@ -359,7 +359,7 @@ const SplitList: React.FC = () => {
   };
 
   return (
-    <div className="customqa-page">
+    <div className="splitlist-page">
       <h1>分片详情</h1>
       <div className="btn-box">
         <Button
@@ -384,6 +384,7 @@ const SplitList: React.FC = () => {
             type: 'checkbox',
             ...rowSelection,
           }}
+          className='split-list-table'
           columns={columns}
           dataSource={splitData}
           rowKey={(record: any) => record.id}

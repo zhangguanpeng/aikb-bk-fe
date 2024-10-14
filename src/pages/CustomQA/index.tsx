@@ -1,14 +1,22 @@
-import { addCustomQa, deleteCustomQa, getCustomQaData, updateCustomQa, uploadQaImage } from '@/services/aikb/api';
-import { PlusOutlined } from '@ant-design/icons';
-import { Button, Form, Input, message, Modal, Space, Table } from 'antd';
+import {
+  addCustomQa,
+  deleteCustomQa,
+  getCustomQaData,
+  updateCustomQa,
+  uploadQaDocument,
+  uploadQaImage,
+} from '@/services/aikb/api';
+import { PlusOutlined, UploadOutlined } from '@ant-design/icons';
+import type { UploadProps } from 'antd';
+import { Button, Form, Input, message, Modal, Space, Table, Upload } from 'antd';
 import type { FormInstance } from 'antd/es/form';
 import type { ColumnsType } from 'antd/es/table';
-import React, { useEffect, useState } from 'react';
-import ReactMarkdown from 'react-markdown';
-import remarkMath from 'remark-math';
-import rehypeKatex from 'rehype-katex';
 import { MdEditor } from 'md-editor-rt';
 import 'md-editor-rt/lib/style.css';
+import React, { useEffect, useState } from 'react';
+import ReactMarkdown from 'react-markdown';
+import rehypeKatex from 'rehype-katex';
+import remarkMath from 'remark-math';
 import './index.less';
 
 interface DataType {
@@ -30,21 +38,8 @@ const CustomQA: React.FC = () => {
   const [total, setTotal] = useState(0);
   const [currentRecord, setCurrentRecord] = useState({});
   const [splitContent, setSplitContent] = useState('');
-
-  const handleUpdateQa = (action: string, record: any) => {
-    const initFormValues = {
-      question: action === 'add' ? '' : record.question,
-      answer: action === 'add' ? '' : record.answer,
-    };
-    formInModal.setFieldsValue(initFormValues);
-    setSplitContent('');
-    setActionType(action);
-    setQaModalShow(true);
-    if (action === 'edit') {
-      setCurrentRecord(record);
-      setSplitContent(record.answer);
-    }
-  };
+  // const [selectedFileList, setSelectedFileList] = useState([]);
+  // let fileList = [];
 
   const fetchQaData = (pageInfo: any) => {
     const queryParams = queryForm.getFieldsValue();
@@ -65,6 +60,68 @@ const CustomQA: React.FC = () => {
       .catch((error) => {
         console.log(error);
       });
+  };
+
+  const customRequest = (fileList: any) => {
+    // console.log('selectedFileList', selectedFileList);
+    if (fileList.length < 1) {
+      message.warning('请先选择文档');
+      return false;
+    }
+    let formData = new FormData();
+    fileList.forEach((file: any) => {
+      formData.append(`fileList`, file);
+    });
+
+    uploadQaDocument(formData)
+      .then((res: any) => {
+        message.success('上传成功');
+        console.log('上传文档res', res);
+        // setSelectedFileList([]);
+        // @ts-ignore
+        const pageInfo = {
+          page: 1,
+          size: 10,
+        };
+        fetchQaData(pageInfo);
+      })
+      .catch(() => {
+        message.error('上传失败');
+        // setSelectedFileList([]);
+      });
+  };
+
+  const uploadQaProps: UploadProps = {
+    name: 'file',
+    accept: '.xls, .xlsx',
+    beforeUpload: (file) => {
+      console.log('beforeUpload file', file);
+      // @ts-ignore
+      // fileList = [...fileList, file];
+      // @ts-ignore
+      // setSelectedFileList(fileList);
+      customRequest([file]);
+      return false;
+    },
+    maxCount: 50,
+    showUploadList: false,
+    multiple: false,
+    // fileList: selectedFileList,
+  };
+
+  const handleUpdateQa = (action: string, record: any) => {
+    const initFormValues = {
+      question: action === 'add' ? '' : record.question,
+      answer: action === 'add' ? '' : record.answer,
+    };
+    formInModal.setFieldsValue(initFormValues);
+    setSplitContent('');
+    setActionType(action);
+    setQaModalShow(true);
+    if (action === 'edit') {
+      setCurrentRecord(record);
+      setSplitContent(record.answer);
+    }
   };
 
   const handleDeleteQa = (id: string) => {
@@ -98,7 +155,7 @@ const CustomQA: React.FC = () => {
         <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>
           {text}
         </ReactMarkdown>
-      )
+      ),
     },
     {
       title: '操作',
@@ -146,13 +203,14 @@ const CustomQA: React.FC = () => {
         message.success('上传成功');
         let newSplitContent = splitContent;
         res.payload.forEach((imgItem: any) => {
-          newSplitContent += `![](aikb/v1/qapair/image/${imgItem.thumbnailFileUrl})`
+          newSplitContent += `![](aikb/v1/qapair/image/${imgItem.oriImageFileUrl})`;
         });
         setSplitContent(newSplitContent);
       })
       .catch(() => {
         message.error('上传失败');
-      });
+      }
+    );
   };
 
   const handleAddQaOk = () => {
@@ -187,7 +245,7 @@ const CustomQA: React.FC = () => {
           message.success('修改成功');
           setQaModalShow(false);
           const pageInfo = {
-            page: 1,
+            page: currentPage,
             size: 10,
           };
           fetchQaData(pageInfo);
@@ -252,6 +310,10 @@ const CustomQA: React.FC = () => {
         >
           添加问答
         </Button>
+        <Upload {...uploadQaProps}>
+          {/* @ts-ignore */}
+          <Button type='link' icon={<UploadOutlined />}>上传问答对</Button>
+        </Upload>
       </div>
       <div className="common-box">
         <Table
@@ -290,7 +352,15 @@ const CustomQA: React.FC = () => {
             </Form.Item>
             <Form.Item name="answer" label="回答">
               {/* <Input.TextArea /> */}
-              <MdEditor modelValue={splitContent} onChange={(value) => { setSplitContent(value) }} toolbars={['image']} noImgZoomIn onUploadImg={onUploadImg} />
+              <MdEditor
+                modelValue={splitContent}
+                onChange={(value) => {
+                  setSplitContent(value);
+                }}
+                toolbars={['image']}
+                noImgZoomIn
+                onUploadImg={onUploadImg}
+              />
             </Form.Item>
           </Form>
         </div>

@@ -234,7 +234,7 @@ const UserList: React.FC = () => {
           message.success('修改成功');
           setUserModalShow(false);
           const pageInfo = {
-            page: 1,
+            page: currentPage,
             size: 10,
           };
           fetchUserData(pageInfo);

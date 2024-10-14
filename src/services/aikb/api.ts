@@ -205,6 +205,24 @@ export async function uploadQaImage(params: any) {
   });
 }
 
+/** 问答对图片上传 POST /aikb/v1/qapair/upload/image */
+export async function uploadQaDocument(params: any) {
+  return request('/aikb/v1/qapair/upload', {
+    method: 'POST',
+    headers: {
+      // 'Content-Type': 'multipart/form-data',
+    },
+    transformRequest: [
+      function (data, headers: any) {
+        // 去除post请求默认的Content-Type
+        delete headers.post['Content-Type'];
+        return data;
+      },
+    ],
+    data: params,
+  });
+}
+
 /** 文本搜索 GET /aikb/v1/search */
 export async function getTextData(params: any) {
   return request('/aikb/v1/search', {
