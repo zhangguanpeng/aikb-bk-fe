@@ -224,6 +224,7 @@ const DocumentList: React.FC = () => {
           page: 1,
           size: 10,
         };
+        setCurrentPage(1);
         fetchDocumentData(pageInfo, null);
       })
       .catch(() => {

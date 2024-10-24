@@ -157,4 +157,5 @@ export default defineConfig({
   },
   requestRecord: {},
   esbuildMinifyIIFE: true,
+  // favicons: ['../public/logo.png']
 });

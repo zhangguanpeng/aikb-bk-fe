@@ -98,6 +98,7 @@ const UserList: React.FC = () => {
           page: 1,
           size: 10,
         };
+        setCurrentPage(1);
         fetchUserData(pageInfo);
       })
       .catch(() => {

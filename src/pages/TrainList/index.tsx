@@ -249,6 +249,7 @@ const TrainList: React.FC = () => {
           page: 1,
           size: 10,
         };
+        setCurrentPage(1);
         fetchTrainData(pageInfo, null);
       })
       .catch((error) => {

@@ -66,6 +66,7 @@ const RoleList: React.FC = () => {
           page: 1,
           size: 10,
         };
+        setCurrentPage(1);
         fetchRoleData(pageInfo);
       })
       .catch(() => {

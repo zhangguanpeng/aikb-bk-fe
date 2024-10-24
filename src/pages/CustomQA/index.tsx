@@ -93,7 +93,7 @@ const CustomQA: React.FC = () => {
 
   const uploadQaProps: UploadProps = {
     name: 'file',
-    accept: '.xls, .xlsx',
+    accept: '.xls, .xlsx, .doc, .docx',
     beforeUpload: (file) => {
       console.log('beforeUpload file', file);
       // @ts-ignore
@@ -132,6 +132,7 @@ const CustomQA: React.FC = () => {
           page: 1,
           size: 10,
         };
+        setCurrentPage(1);
         fetchQaData(pageInfo);
       })
       .catch(() => {

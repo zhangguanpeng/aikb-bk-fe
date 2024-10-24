@@ -11,6 +11,7 @@ import { errorConfig } from './requestErrorConfig';
 import React from 'react';
 import { AvatarDropdown, AvatarName } from './components/RightContent/AvatarDropdown';
 import { getCookie } from '@/utils';
+import logo from '../public/logo.png';
 // const isDev = process.env.NODE_ENV === 'development';
 const loginPath = '/user/login';
 
@@ -155,6 +156,7 @@ export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) =
 			);
 		},
 		...initialState?.settings,
+		logo,
 	};
 };
 
