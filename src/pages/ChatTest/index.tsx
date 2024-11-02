@@ -250,6 +250,9 @@ const ChatTest: React.FC = () => {
               defaultValue={[]}
               // onChange={handleChange}
               options={tagData}
+              filterOption={(input, option: any) =>
+                (option?.label ?? '').includes(input)
+              }
             />
           </Form.Item> 
           <Form.Item name="documentId" label="文档名称">
@@ -261,6 +264,9 @@ const ChatTest: React.FC = () => {
               defaultValue={[]}
               onChange={handleDocChange}
               options={documentOptions}
+              filterOption={(input, option: any) =>
+                (option?.label ?? '').includes(input)
+              }
             />
           </Form.Item>
         </Form>

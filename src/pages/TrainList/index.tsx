@@ -548,7 +548,7 @@ const TrainList: React.FC = () => {
           setTrainModalShow(false);
           // setDocumentData([]);
           const pageInfo = {
-            page: 1,
+            page: currentPage,
             size: 10,
           };
           formInModal.resetFields();

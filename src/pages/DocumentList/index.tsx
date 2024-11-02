@@ -375,7 +375,7 @@ const DocumentList: React.FC = () => {
     updateDocTag(currentRecord.id, { tagIds: tagIds.join(',') }).then(res => {
       message.success('修改成功');
       const pageInfo = {
-        page: 1,
+        page: currentPage,
         size: 10,
       };
       fetchDocumentData(pageInfo, null);
@@ -393,7 +393,7 @@ const DocumentList: React.FC = () => {
     updateDocStrategy(currentRecord.id, { algorithm }).then(res => {
       message.success('修改成功');
       const pageInfo = {
-        page: 1,
+        page: currentPage,
         size: 10,
       };
       fetchDocumentData(pageInfo, null);
@@ -428,6 +428,9 @@ const DocumentList: React.FC = () => {
               defaultValue={[]}
               // onChange={handleChange}
               options={tagData}
+              filterOption={(input, option: any) =>
+                (option?.label ?? '').includes(input)
+              }
             />
           </Form.Item>
           <Form.Item>

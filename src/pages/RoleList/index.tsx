@@ -175,7 +175,7 @@ const RoleList: React.FC = () => {
           message.success('修改成功');
           setRoleModalShow(false);
           const pageInfo = {
-            page: 1,
+            page: currentPage,
             size: 10,
           };
           fetchRoleData(pageInfo);

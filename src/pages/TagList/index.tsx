@@ -221,7 +221,7 @@ const TagList: React.FC = () => {
           message.success('修改成功');
           setTagModalShow(false);
           const pageInfo = {
-            page: 1,
+            page: currentPage,
             size: 10,
           };
           fetchTagData(pageInfo, null);
