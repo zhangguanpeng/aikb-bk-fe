@@ -129,7 +129,11 @@ const Login: React.FC = () => {
 			// @ts-ignore
 			formData.append('password', password);
 
-			axios.post('/aikb/v1/login', formData).then((res: any) => {
+			const headers = {
+				loginFrom: 'adminBe',
+			};
+
+			axios.post('/aikb/v1/login', formData, { headers }).then((res: any) => {
 				console.log('登录res', res);
 				const userInfo = res.data.payload || {};
 				setInitialState((s) => ({

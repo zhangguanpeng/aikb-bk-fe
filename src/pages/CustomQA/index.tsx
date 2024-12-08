@@ -5,10 +5,11 @@ import {
   updateCustomQa,
   uploadQaDocument,
   uploadQaImage,
+  getTagData
 } from '@/services/aikb/api';
-import { PlusOutlined, UploadOutlined } from '@ant-design/icons';
+import { PlusOutlined, UploadOutlined, QuestionCircleOutlined } from '@ant-design/icons';
 import type { UploadProps } from 'antd';
-import { Button, Form, Input, message, Modal, Space, Table, Upload } from 'antd';
+import { Button, Form, Input, message, Modal, Space, Table, Upload, Flex, Tag, Select, Tooltip } from 'antd';
 import type { FormInstance } from 'antd/es/form';
 import type { ColumnsType } from 'antd/es/table';
 import { MdEditor } from 'md-editor-rt';
@@ -35,11 +36,38 @@ const CustomQA: React.FC = () => {
   const [actionType, setActionType] = useState('add');
   const [currentPage, setCurrentPage] = useState(1);
   const [qaData, setQaData] = useState([]);
+  const [tagData, setTagData] = useState([]);
   const [total, setTotal] = useState(0);
   const [currentRecord, setCurrentRecord] = useState({});
   const [splitContent, setSplitContent] = useState('');
+  const [shortAnswer, setShortAnswer] = useState('');
   // const [selectedFileList, setSelectedFileList] = useState([]);
   // let fileList = [];
+
+  const fetchTagData = () => {
+    const params = {
+      id: '',
+      name: '',
+      page: 1,
+      size: 100,
+      sort: 'createdDate,desc',
+    };
+    getTagData(params)
+      .then((res) => {
+        console.log('标签列表res', res);
+        const tagData = res.payload.map((item: any) => {
+          const option = {
+            label: item.name,
+            value: item.id
+          };
+          return option
+        });
+        setTagData(tagData);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
 
   const fetchQaData = (pageInfo: any) => {
     const queryParams = queryForm.getFieldsValue();
@@ -48,7 +76,7 @@ const CustomQA: React.FC = () => {
       question: queryParams ? queryParams.questionDesc : '',
       answer: '',
       ...pageInfo,
-      sort: 'createdDate,desc',
+      sort: 'createdDate,ASC',
     };
 
     getCustomQaData(params)
@@ -113,14 +141,18 @@ const CustomQA: React.FC = () => {
     const initFormValues = {
       question: action === 'add' ? '' : record.question,
       answer: action === 'add' ? '' : record.answer,
+      shortAnswer: action === 'add' ? '' : record.shortAnswer,
+      tagIds: action === 'add' ? [] : record.tags?.map((item: any) => item.id),
     };
     formInModal.setFieldsValue(initFormValues);
     setSplitContent('');
+    setShortAnswer('');
     setActionType(action);
     setQaModalShow(true);
     if (action === 'edit') {
       setCurrentRecord(record);
       setSplitContent(record.answer);
+      setShortAnswer(record.shortAnswer || '');
     }
   };
 
@@ -149,19 +181,50 @@ const CustomQA: React.FC = () => {
       // render: (text) => <a>{text}</a>,
     },
     {
-      title: '回答',
+      title: '简要回答',
+      dataIndex: 'shortAnswer',
+      key: 'shortAnswer',
+      width: 300,
+      render: (text, record) => (
+        <div>
+          <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>
+            {text && text.length > 500 ? `${text.substr(0, 200)}...` : text}
+          </ReactMarkdown>
+        </div>
+      ),
+    },
+    {
+      title: '详细回答',
       dataIndex: 'answer',
       key: 'answer',
-      render: (text) => (
-        <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>
-          {text}
-        </ReactMarkdown>
+      width: 300,
+      render: (text, record) => (
+        <div>
+          <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>
+            {text.length > 500 ? `${text.substr(0, 200)}...` : text}
+          </ReactMarkdown>
+        </div>
+      ),
+    },
+    {
+      title: '标签',
+      dataIndex: 'tags',
+      key: 'tags',
+      width: 150,
+      render: (text, record) => (
+        <Flex gap="4px 0" wrap>
+          {
+            record.tags && record.tags.length > 0 && record.tags.map((tagItem: any) => (
+              <Tag color={tagItem.color}>{tagItem.name}</Tag>
+            ))
+          }
+        </Flex>
       ),
     },
     {
       title: '操作',
       key: 'action',
-      width: 150,
+      width: 180,
       render: (_, record: any) => (
         <Space size="middle">
           <a
@@ -169,7 +232,7 @@ const CustomQA: React.FC = () => {
               handleUpdateQa('edit', record);
             }}
           >
-            编辑
+            编辑/查看详情
           </a>
           <a
             style={{ color: 'red' }}
@@ -190,6 +253,7 @@ const CustomQA: React.FC = () => {
       size: 10,
     };
     fetchQaData(pageInfo);
+    fetchTagData();
   }, []);
 
   const onUploadImg = async (files: any, callback: any) => {
@@ -214,12 +278,36 @@ const CustomQA: React.FC = () => {
     );
   };
 
+  const onUploadImgInShort = async (files: any, callback: any) => {
+    let formData = new FormData();
+    files.forEach((file: any) => {
+      formData.append(`imageList`, file);
+    });
+    // formData.append(`imageList`, file);
+    uploadQaImage(formData)
+      .then((res: any) => {
+        console.log('上传图片res', res);
+        message.success('上传成功');
+        let newShortAnswer = shortAnswer;
+        res.payload.forEach((imgItem: any) => {
+          newShortAnswer += `![](aikb/v1/qapair/image/${imgItem.oriImageFileUrl})`;
+        });
+        setShortAnswer(newShortAnswer || '');
+      })
+      .catch(() => {
+        message.error('上传失败');
+      }
+    );
+  };
+
   const handleAddQaOk = () => {
     console.log('formInModal value', formInModal.getFieldsValue());
-    const { question } = formInModal.getFieldsValue();
+    const { question, tagIds } = formInModal.getFieldsValue();
     const params = {
       question,
+      shortAnswer,
       answer: splitContent,
+      tagIds
     };
 
     const { id = '' } = currentRecord;
@@ -315,6 +403,9 @@ const CustomQA: React.FC = () => {
           {/* @ts-ignore */}
           <Button type='link' icon={<UploadOutlined />}>上传问答对</Button>
         </Upload>
+        <Tooltip title="上传word文档按照：@@@问题1@@@简要答案1@@@详细答案1的顺序和特殊符号形式依次添加">
+          <span><QuestionCircleOutlined /></span>
+        </Tooltip>
       </div>
       <div className="common-box">
         <Table
@@ -340,18 +431,38 @@ const CustomQA: React.FC = () => {
           setQaModalShow(false);
         }}
         onOk={handleAddQaOk}
-        width={800}
+        width={880}
       >
         <div style={{ paddingTop: '10px' }}>
           <Form
             form={formInModal}
             name="control-ref"
             // onFinish={onAddQaFinish}
+            labelCol={{ span: 2 }}
           >
             <Form.Item name="question" label="问题">
               <Input.TextArea />
             </Form.Item>
-            <Form.Item name="answer" label="回答">
+            <Form.Item name="tagIds" label="选择标签">
+              <Select
+                mode="multiple"
+                placeholder="请选择标签"
+                defaultValue={[]}
+                options={tagData}
+              />
+            </Form.Item>
+            <Form.Item name="shortAnswer" label="简要回答">
+              <MdEditor
+                modelValue={shortAnswer}
+                onChange={(value) => {
+                  setShortAnswer(value);
+                }}
+                toolbars={['image']}
+                noImgZoomIn
+                onUploadImg={onUploadImgInShort}
+              />
+            </Form.Item>
+            <Form.Item name="answer" label="详细回答">
               {/* <Input.TextArea /> */}
               <MdEditor
                 modelValue={splitContent}

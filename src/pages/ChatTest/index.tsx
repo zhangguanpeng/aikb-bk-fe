@@ -139,7 +139,7 @@ const ChatTest: React.FC = () => {
     const { tags = [], documentId } = form.getFieldsValue();
 
     const params = {
-      'tags.id': tags.join(','),
+      tagIds: tags,
       text: searchText,
       documentIds: documentId ? documentId : [],
       modelConfig: {

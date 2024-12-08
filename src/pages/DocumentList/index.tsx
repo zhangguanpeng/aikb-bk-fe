@@ -247,7 +247,13 @@ const DocumentList: React.FC = () => {
       dataIndex: 'name',
       key: 'name',
       width: 300,
-      render: (text) => <a>{text}</a>,
+      render: (text, record) => (
+        <a onClick={() => {
+          history.push('/splitlist', { documentId: record.id })
+        }}>
+          {text}
+        </a>
+      ),
     },
     {
       title: '标签',

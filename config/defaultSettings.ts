@@ -15,7 +15,7 @@ const Settings: ProLayoutProps & {
   fixedHeader: false,
   fixSiderbar: true,
   colorWeak: false,
-  title: '知识库管理后台',
+  title: '行业大模型训练平台',
   pwa: true,
   logo: '',
   iconfontUrl: '',
