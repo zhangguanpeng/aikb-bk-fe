@@ -1,15 +1,35 @@
 import {
   addCustomQa,
   deleteCustomQa,
+  batchDeleteCustomQa,
   getCustomQaData,
+  getTagData,
   updateCustomQa,
   uploadQaDocument,
   uploadQaImage,
-  getTagData
 } from '@/services/aikb/api';
-import { PlusOutlined, UploadOutlined, QuestionCircleOutlined } from '@ant-design/icons';
-import type { UploadProps } from 'antd';
-import { Button, Form, Input, message, Modal, Space, Table, Upload, Flex, Tag, Select, Tooltip } from 'antd';
+import {
+  DeleteOutlined,
+  PlusOutlined,
+  QuestionCircleOutlined,
+  UploadOutlined,
+} from '@ant-design/icons';
+import type { TableProps, UploadProps } from 'antd';
+import {
+  Button,
+  Flex,
+  Form,
+  Input,
+  message,
+  Modal,
+  Popconfirm,
+  Select,
+  Space,
+  Table,
+  Tag,
+  Tooltip,
+  Upload,
+} from 'antd';
 import type { FormInstance } from 'antd/es/form';
 import type { ColumnsType } from 'antd/es/table';
 import { MdEditor } from 'md-editor-rt';
@@ -41,6 +61,7 @@ const CustomQA: React.FC = () => {
   const [currentRecord, setCurrentRecord] = useState({});
   const [splitContent, setSplitContent] = useState('');
   const [shortAnswer, setShortAnswer] = useState('');
+  const [selectedQaRows, setSelectedQaRows] = useState([]);
   // const [selectedFileList, setSelectedFileList] = useState([]);
   // let fileList = [];
 
@@ -58,9 +79,9 @@ const CustomQA: React.FC = () => {
         const tagData = res.payload.map((item: any) => {
           const option = {
             label: item.name,
-            value: item.id
+            value: item.id,
           };
-          return option
+          return option;
         });
         setTagData(tagData);
       })
@@ -172,6 +193,37 @@ const CustomQA: React.FC = () => {
       });
   };
 
+  const handleBatchDeleteQa = () => {
+    const params = {
+      idList: selectedQaRows.map((item: any) => item.id)
+    };
+    batchDeleteCustomQa(params)
+      .then(() => {
+        message.success('批量删除成功');
+        const pageInfo = {
+          page: 1,
+          size: 10,
+        };
+        setCurrentPage(1);
+        fetchQaData(pageInfo);
+      })
+      .catch(() => {
+        message.error('批量删除失败');
+      });
+  };
+
+  const rowSelection: TableProps<DataType>['rowSelection'] = {
+    onChange: (selectedRowKeys: React.Key[], selectedRows: DataType[]) => {
+      console.log(`selectedRowKeys: ${selectedRowKeys}`, 'selectedRows: ', selectedRows);
+      // @ts-ignore
+      setSelectedQaRows(selectedRows);
+    },
+    getCheckboxProps: (record: DataType) => ({
+      disabled: record.name === 'Disabled User', // Column configuration not to be checked
+      name: record.name,
+    }),
+  };
+
   const columns: ColumnsType<DataType> = [
     {
       title: '问题描述',
@@ -213,11 +265,9 @@ const CustomQA: React.FC = () => {
       width: 150,
       render: (text, record) => (
         <Flex gap="4px 0" wrap>
-          {
-            record.tags && record.tags.length > 0 && record.tags.map((tagItem: any) => (
-              <Tag color={tagItem.color}>{tagItem.name}</Tag>
-            ))
-          }
+          {record.tags &&
+            record.tags.length > 0 &&
+            record.tags.map((tagItem: any) => <Tag color={tagItem.color}>{tagItem.name}</Tag>)}
         </Flex>
       ),
     },
@@ -234,14 +284,18 @@ const CustomQA: React.FC = () => {
           >
             编辑/查看详情
           </a>
-          <a
-            style={{ color: 'red' }}
-            onClick={() => {
+          <Popconfirm
+            title="删除问答"
+            description="确定要删除该问答吗？"
+            onConfirm={() => {
               handleDeleteQa(record.id);
             }}
+            onCancel={() => {}}
+            okText="确定"
+            cancelText="取消"
           >
-            删除
-          </a>
+            <a style={{ color: 'red' }}>删除</a>
+          </Popconfirm>
         </Space>
       ),
     },
@@ -274,8 +328,7 @@ const CustomQA: React.FC = () => {
       })
       .catch(() => {
         message.error('上传失败');
-      }
-    );
+      });
   };
 
   const onUploadImgInShort = async (files: any, callback: any) => {
@@ -296,8 +349,7 @@ const CustomQA: React.FC = () => {
       })
       .catch(() => {
         message.error('上传失败');
-      }
-    );
+      });
   };
 
   const handleAddQaOk = () => {
@@ -307,7 +359,7 @@ const CustomQA: React.FC = () => {
       question,
       shortAnswer,
       answer: splitContent,
-      tagIds
+      tagIds,
     };
 
     const { id = '' } = currentRecord;
@@ -401,17 +453,41 @@ const CustomQA: React.FC = () => {
         </Button>
         <Upload {...uploadQaProps}>
           {/* @ts-ignore */}
-          <Button type='link' icon={<UploadOutlined />}>上传问答对</Button>
+          <Button type="link" icon={<UploadOutlined />}>
+            上传问答对
+          </Button>
         </Upload>
         <Tooltip title="上传word文档按照：@@@问题1@@@简要答案1@@@详细答案1的顺序和特殊符号形式依次添加">
-          <span><QuestionCircleOutlined /></span>
+          <span>
+            <QuestionCircleOutlined />
+          </span>
         </Tooltip>
+        <Popconfirm
+          title="批量删除问答"
+          description="确定要批量删除这些问答吗？"
+          onConfirm={() => {
+            handleBatchDeleteQa();
+          }}
+          onCancel={() => {}}
+          okText="确定"
+          cancelText="取消"
+        >
+          <Button
+            type="link"
+            icon={<DeleteOutlined />}
+            danger
+            disabled={selectedQaRows.length === 0}
+          >
+            批量删除
+          </Button>
+        </Popconfirm>
       </div>
       <div className="common-box">
         <Table
           columns={columns}
           dataSource={qaData}
           rowKey={(record: any) => record.id}
+          rowSelection={{ type: 'checkbox', ...rowSelection }}
           pagination={{
             showTotal: () => {
               return `共有${total}条数据`;

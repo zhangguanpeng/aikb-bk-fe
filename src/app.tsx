@@ -1,6 +1,6 @@
 // import Footer from '@/components/Footer';
 // import { Question, SelectLang } from '@/components/RightContent';
-// import { LinkOutlined } from '@ant-design/icons';
+import { LinkOutlined } from '@ant-design/icons';
 import type { Settings as LayoutSettings } from '@ant-design/pro-components';
 // import { SettingDrawer } from '@ant-design/pro-components';
 import type { RunTimeLayoutConfig } from '@umijs/max';
@@ -82,6 +82,7 @@ export async function getInitialState(): Promise<{
 export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) => {
 	return {
 		// actionsRender: () => [<Question key="doc" />, <SelectLang key="SelectLang" />],
+		siderWidth: 200,
 		actionsRender: () => [],
 		avatarProps: {
 			src: initialState?.currentUser?.avatar,
@@ -131,7 +132,16 @@ export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) =
 		// 		</Link>,
 		// 	]
 		// 	: [],
-		links: [],
+		links: [
+			// <a key="picmark" href="http://ais.fxincen.top:33000/" target="_blank">
+			// 	<LinkOutlined style={{ color: '#1890ff' }} />
+			// 	<span style={{ color: '#1890ff' }}>图片标注</span>
+		 	// </a>,
+			// <a key="modeloptimize" href="http://ais.fxincen.top:7860/" target="_blank">
+			// 	<LinkOutlined style={{ color: '#1890ff' }} />
+			// 	<span style={{ color: '#1890ff' }}>模型调优</span>
+			// </a>,
+		],
 		menuHeaderRender: undefined,
 		// 自定义 403 页面
 		// unAccessible: <div>unAccessible</div>,

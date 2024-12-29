@@ -309,6 +309,18 @@ export async function deleteCustomQa(id: string) {
   });
 }
 
+/** 批量删除问答 DELETE /aikb/v1/category/{categoryId} */
+export async function batchDeleteCustomQa(params: any) {
+  // @ts-ignore
+  return request(`/aikb/v1/qapair/batchDelete`, {
+    method: 'DELETE',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: params,
+  });
+}
+
 /** 获取训练列表 GET /aikb/v1/doc */
 export async function getTrainData(params: any) {
   return request('/aikb/v1/train', {
