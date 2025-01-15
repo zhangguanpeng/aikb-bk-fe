@@ -114,7 +114,7 @@ const Welcome: React.FC = () => {
               color: token.colorTextHeading,
             }}
           >
-            欢迎使用 AI老铁-质安千问智能助手
+            欢迎使用 产品制造中心AI智能助手
           </div>
           <p
             style={{
@@ -126,7 +126,7 @@ const Welcome: React.FC = () => {
               width: '65%',
             }}
           >
-            AI老铁-质安千问智能助手 是一款基于大模型实现的 AI 知识库。
+            产品制造中心AI智能助手，是一款基于大模型实现的 AI知识库。
           </p>
         </div>
       </Card>

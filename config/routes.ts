@@ -76,40 +76,40 @@ export default [
     component: './SplitList',
     hideInMenu: true,
   },
-  {
-    name: 'arithmetic',
-    icon: 'ExperimentOutlined',
-    path: '/arithmetic',
-    routes: [
-  		{
-  			path: '/arithmetic',
-  			redirect: '/arithmetic/trainlist',
-  		},
-      {
-        name: 'trainlist',
-  			path: '/arithmetic/trainlist',
-        icon: 'ExperimentOutlined',
-        component: './TrainList',
-  		},
-      {
-        name: 'picmark',
-  			path: 'http://ais.fxincen.top:33000/',
-        target: '_blank',
-        rel: 'noopener noreferrer'
-  		},
-      {
-        name: 'modeloptimize',
-  			path: 'http://ais.fxincen.top:7860/',
-        icon: 'ExperimentOutlined',
-  		},
-  	],
-  },
   // {
-  //   name: 'train-list',
+  //   name: 'arithmetic',
   //   icon: 'ExperimentOutlined',
-  //   path: '/trainlist',
-  //   component: './TrainList',
+  //   path: '/arithmetic',
+  //   routes: [
+  // 		{
+  // 			path: '/arithmetic',
+  // 			redirect: '/arithmetic/trainlist',
+  // 		},
+  //     {
+  //       name: 'trainlist',
+  // 			path: '/arithmetic/trainlist',
+  //       icon: 'ExperimentOutlined',
+  //       component: './TrainList',
+  // 		},
+  //     {
+  //       name: 'picmark',
+  // 			path: 'http://ais.fxincen.top:33000/',
+  //       target: '_blank',
+  //       rel: 'noopener noreferrer'
+  // 		},
+  //     {
+  //       name: 'modeloptimize',
+  // 			path: 'http://ais.fxincen.top:7860/',
+  //       icon: 'ExperimentOutlined',
+  // 		},
+  // 	],
   // },
+  {
+    name: 'train-list',
+    icon: 'ExperimentOutlined',
+    path: '/trainlist',
+    component: './TrainList',
+  },
   {
     name: 'dialogue-test',
     icon: 'comment',
@@ -136,11 +136,11 @@ export default [
     component: './RoleList',
     access: 'canAdmin'
   },
-  {
-    name: 'statement-manage',
-    icon: 'AreaChartOutlined',
-    path: 'http://ais.fxincen.top:3001/login',
-  },
+  // {
+  //   name: 'statement-manage',
+  //   icon: 'AreaChartOutlined',
+  //   path: 'http://ais.fxincen.top:3001/login',
+  // },
   {
     path: '/',
     redirect: '/welcome',
