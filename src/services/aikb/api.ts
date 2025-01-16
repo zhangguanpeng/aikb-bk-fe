@@ -475,6 +475,17 @@ export async function getRoleData(params: any) {
   });
 }
 
+/** 角色类型查询 */
+export async function getRoleTypeData() {
+  return request('/aikb/v1/role/type', {
+    method: 'GET',
+    headers: {
+    	'authorization': getCookie('authorization'),
+    },
+    // params,
+  });
+}
+
 /** 新增角色 */
 export async function addRole(params: any) {
   return request('/aikb/v1/role', {

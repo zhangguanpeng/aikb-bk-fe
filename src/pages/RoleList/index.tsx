@@ -1,6 +1,6 @@
-import { addRole, deleteRole, getRoleData, updateRole } from '@/services/aikb/api';
+import { addRole, deleteRole, getRoleData, updateRole, getRoleTypeData } from '@/services/aikb/api';
 import { PlusOutlined, ExclamationCircleFilled } from '@ant-design/icons';
-import { Button, Form, Input, message, Modal, Space, Table } from 'antd';
+import { Button, Form, Input, message, Modal, Space, Table, Select } from 'antd';
 import type { FormInstance } from 'antd/es/form';
 import type { ColumnsType } from 'antd/es/table';
 import React, { useEffect, useState } from 'react';
@@ -24,12 +24,14 @@ const RoleList: React.FC = () => {
   const [actionType, setActionType] = useState('add');
   const [currentPage, setCurrentPage] = useState(1);
   const [roleData, setRoleData] = useState([]);
+  const [roleTypeData, setRoleTypeData] = useState([]);
   const [total, setTotal] = useState(0);
   const [currentRecord, setCurrentRecord] = useState({});
 
   const handleUpdateRole = (action: string, record: any) => {
     const initFormValues = {
-      name: action === 'add' ? '' : record.name
+      name: action === 'add' ? '' : record.name,
+      type: action === 'add' ? '' : record.type
     };
     formInModal.setFieldsValue(initFormValues);
     setActionType(action);
@@ -52,6 +54,25 @@ const RoleList: React.FC = () => {
         console.log('角色res', res);
         setRoleData(res.payload);
         setTotal(res.totalElements);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
+
+  const fetchRoleTypeData = () => {
+    getRoleTypeData()
+      .then((res) => {
+        console.log('角色类型res', res);
+        const { payload = [] } = res;
+        const formattedRoleTypeData = payload.map((item: string) => {
+          const option = {
+            label: item,
+            value: item,
+          };
+          return option;
+        })
+        setRoleTypeData(formattedRoleTypeData);
       })
       .catch((error) => {
         console.log(error);
@@ -100,11 +121,12 @@ const RoleList: React.FC = () => {
       width: 200,
       // render: (text) => <a>{text}</a>,
     },
-    // {
-    //   title: '回答',
-    //   dataIndex: 'answer',
-    //   key: 'answer',
-    // },
+    {
+      title: '角色类型',
+      dataIndex: 'type',
+      key: 'type',
+      width: 100,
+    },
     {
       title: '操作',
       key: 'action',
@@ -137,11 +159,12 @@ const RoleList: React.FC = () => {
       size: 10,
     };
     fetchRoleData(pageInfo);
+    fetchRoleTypeData();
   }, []);
 
   const handleAddRoleOk = () => {
     console.log('formInModal value', formInModal.getFieldsValue());
-    const { name } = formInModal.getFieldsValue();
+    const { name, type } = formInModal.getFieldsValue();
     if (!name) {
       message.warning('请输入有效角色名称');
       return false;
@@ -149,6 +172,7 @@ const RoleList: React.FC = () => {
     
     const params = {
       name,
+      type
     };
 
     const { id = '' } = currentRecord;
@@ -271,6 +295,14 @@ const RoleList: React.FC = () => {
           >
             <Form.Item name="name" label="角色名称">
               <Input placeholder='请输入角色名称' />
+            </Form.Item>
+            <Form.Item name="type" label="角色类型">
+              <Select
+                // mode="multiple"
+                placeholder="请选择角色类型"
+                defaultValue={[]}
+                options={roleTypeData}
+              />
             </Form.Item>
             {/* <Form.Item name="answer" label="回答">
               <Input.TextArea />
