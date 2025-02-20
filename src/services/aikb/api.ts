@@ -456,7 +456,7 @@ export async function updateUserRole(id: string, params: any) {
 /** 删除用户 */
 export async function deleteUser(id: string) {
   // @ts-ignore
-  return request(`/aikb/v1/user/${id}`, {
+  return request(`/aikb/v1/admin/user/${id}`, {
     method: 'DELETE',
     headers: {
     	'authorization': getCookie('authorization'),
