@@ -64,15 +64,15 @@ const DocumentProofread: React.FC = () => {
   };
 
 
-  const handlePageChange = (page: number, pageSize: number) => {
-    console.log(page);
-    setCurrentPage(page);
-    const pageInfo = {
-      page,
-      size: pageSize,
-    };
-    fetchDocumentData(pageInfo, null);
-  };
+  // const handlePageChange = (page: number, pageSize: number) => {
+  //   console.log(page);
+  //   setCurrentPage(page);
+  //   const pageInfo = {
+  //     page,
+  //     size: pageSize,
+  //   };
+  //   fetchDocumentData(pageInfo, null);
+  // };
 
   useEffect(() => {
     const pageInfo = {
@@ -84,20 +84,39 @@ const DocumentProofread: React.FC = () => {
 
   return (
     <div className="document-page">
-      <h1>文档管理</h1>
+      <h1>文档校对</h1>
       <div className="common-box query-box">
 
       </div>
       <div className="btn-box">
         <Button type="link" icon={<UploadOutlined />} onClick={() => {
-            setDocumentSettingModalShow(true);
+            
           }}
         >
-          上传文档
+          截图
+        </Button>
+        <Button type="link" icon={<UploadOutlined />} onClick={() => {
+            
+          }}
+        >
+          插入切片符
+        </Button>
+        <Button type="link" icon={<UploadOutlined />} onClick={() => {
+            
+          }}
+        >
+          开始切片
+        </Button>
+        <Button type="link" icon={<UploadOutlined />} onClick={() => {
+            
+          }}
+        >
+          返回
         </Button>
       </div>
       <div className="common-box">
-
+        <div className='left'></div>
+        <div className='right'></div>
       </div>
     </div>
   );

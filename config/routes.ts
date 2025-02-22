@@ -77,6 +77,13 @@ export default [
     hideInMenu: true,
   },
   {
+    name: 'list.document-proofread',
+    icon: 'fileWord',
+    path: '/documentproofread',
+    component: './DocumentProofread',
+    hideInMenu: true,
+  },
+  {
     name: 'arithmetic',
     icon: 'ExperimentOutlined',
     path: '/arithmetic',

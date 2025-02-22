@@ -247,6 +247,7 @@ const DocumentList: React.FC = () => {
       dataIndex: 'name',
       key: 'name',
       width: 300,
+      fixed: 'left',
       render: (text, record) => (
         <a onClick={() => {
           history.push('/splitlist', { documentId: record.id })
@@ -298,6 +299,7 @@ const DocumentList: React.FC = () => {
       title: '操作',
       key: 'action',
       width: 250,
+      fixed: 'right',
       render: (_, record) => (
         <>
           <Space size="middle">
@@ -328,6 +330,17 @@ const DocumentList: React.FC = () => {
               style={{ paddingRight: '10px' }}
             >
               修改策略
+            </a>
+          </Space>
+          <Space size="middle">
+            <a
+              onClick={() => {
+                // handleDownloadFile(record.id);
+                history.push('/documentproofread', { documentId: record.id })
+              }}
+              style={{ paddingRight: '10px' }}
+            >
+              文档校对
             </a>
           </Space>
           <Space size="middle">
@@ -471,7 +484,7 @@ const DocumentList: React.FC = () => {
             total,
           }}
           scroll={{
-            x: true,
+            x: 'max-content',
           }}
         />
       </div>
