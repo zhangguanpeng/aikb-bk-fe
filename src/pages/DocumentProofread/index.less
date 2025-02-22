@@ -17,6 +17,28 @@
   .query-box {
     margin-bottom: 16px;
   }
+
+  .content-box {
+    padding: 2px;
+    background-color: #ffffff;
+    border-radius: 6px;
+    height: calc(100vh - 220px);
+    overflow-y: auto;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+
+    .left {
+      width: 33%;
+      height: 100%;
+      // border: 1px solid rgba(0, 0, 0, 0.3),
+    }
+
+    .right {
+      width: 66%;
+      height: 100%;
+    }
+  }
 }
 
 .upload-document-modal {

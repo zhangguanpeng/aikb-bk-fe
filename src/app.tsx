@@ -82,6 +82,7 @@ export async function getInitialState(): Promise<{
 export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) => {
 	return {
 		// actionsRender: () => [<Question key="doc" />, <SelectLang key="SelectLang" />],
+		siderWidth: 200,
 		actionsRender: () => [],
 		avatarProps: {
 			src: initialState?.currentUser?.avatar,

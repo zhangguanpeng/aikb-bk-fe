@@ -246,7 +246,7 @@ const DocumentList: React.FC = () => {
       title: '文档名称',
       dataIndex: 'name',
       key: 'name',
-      width: 300,
+      width: 250,
       fixed: 'left',
       render: (text, record) => (
         <a onClick={() => {
@@ -275,7 +275,7 @@ const DocumentList: React.FC = () => {
       title: '分片数',
       dataIndex: 'splitCount',
       key: 'splitCount',
-      width: 90,
+      width: 75,
     },
     {
       title: '分片状态',
@@ -293,7 +293,7 @@ const DocumentList: React.FC = () => {
       title: '创建时间',
       dataIndex: 'createdAt',
       key: 'createdAt',
-      width: 180,
+      width: 150,
     },
     {
       title: '操作',
