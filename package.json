@@ -58,6 +58,7 @@
     "axios": "^1.6.8",
     "classnames": "^2.3.2",
     "dayjs": "^1.11.10",
+    "js-web-screen-shot": "^1.9.9-rc.26",
     "katex": "^0.16.11",
     "lodash": "^4.17.21",
     "md-editor-rt": "^4.20.1",

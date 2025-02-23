@@ -298,7 +298,7 @@ const DocumentList: React.FC = () => {
     {
       title: '操作',
       key: 'action',
-      width: 250,
+      width: 180,
       fixed: 'right',
       render: (_, record) => (
         <>

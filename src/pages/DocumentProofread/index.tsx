@@ -8,20 +8,45 @@ import {
 import { Viewer, Worker } from '@react-pdf-viewer/core';
 import { defaultLayoutPlugin, ToolbarProps, ToolbarSlot } from '@react-pdf-viewer/default-layout';
 import { Button } from 'antd';
-import React, { ReactElement, useEffect, useState } from 'react';
-import { MdEditor } from 'md-editor-rt';
+import React, { ReactElement, useEffect, useState, useRef } from 'react';
+import { MdEditor, ExposeParam } from 'md-editor-rt';
+import ScreenShot from "js-web-screen-shot";
 
 import 'md-editor-rt/lib/style.css';
 import '@react-pdf-viewer/core/lib/styles/index.css';
 import '@react-pdf-viewer/default-layout/lib/styles/index.css';
 import './index.less';
 
-const docContent = '# 文档内容';
-
 const DocumentProofread: React.FC = () => {
   const [tagData, setTagData] = useState([]);
+  const [docContent, setDocContent] = useState('');
+  const [docContentInsertFrom, setDocContentInsertFrom] = useState(0);
+  const [insertEnabled, setInsertEnabled] = useState(false);
+  const editorRef = useRef<ExposeParam>();
   // const [currentPdfPage, setCurrentPdfPage] = useState(1);
   // const [pdfPageNumber, setPdfPageNumber] = useState(1);
+
+  const handleScreenShot = () => {
+    new ScreenShot({
+      enableWebRtc: false,//关闭webRtc
+      level: 99999,
+      wrcWindowMode: true,
+      hiddenToolIco: {
+        square: true,
+        round: true,
+        rightTop: true,
+        brush: true,
+        mosaicPen: true,
+        text: true,
+        separateLine: true,
+        save: false,
+        undo: true
+      },
+      // screenShotDom: document.getElementById('mainContainer'),//使用html2canvas获取节点区域
+      completeCallback: () => {},
+      triggerCallback: () => {}
+   })
+  };
 
   const renderToolbar = (Toolbar: (props: ToolbarProps) => ReactElement) => (
     <Toolbar>
@@ -93,6 +118,35 @@ const DocumentProofread: React.FC = () => {
     renderToolbar
   });
 
+  const handleMdEditorFocus = (event: any) => {
+    const insertFrom = event.target?.cmView?.newSel;
+    const selection = window.getSelection();
+    console.log('selection', selection);
+    // console.log('event', event);
+    // console.log('insertFrom', insertFrom);
+    setDocContentInsertFrom(insertFrom);
+    setInsertEnabled(true);
+  };
+
+  const handleInsertStr = () => {
+    // const newDocContent = docContent.substring(0, docContentInsertFrom) + '\n@#@\n' + docContent.substring(docContentInsertFrom);
+    // setDocContent(newDocContent);
+    editorRef.current?.insert((selectedText: string) => {
+      /**
+       * @return targetValue    待插入内容
+       * @return select         插入后是否自动选中内容，默认：true
+       * @return deviationStart 插入后选中内容鼠标开始位置，默认：0
+       * @return deviationEnd   插入后选中内容鼠标结束位置，默认：0
+       */
+      return {
+        targetValue: '\n@#@\n',
+        select: false,
+        deviationStart: 0,
+        deviationEnd: 0,
+      };
+    });
+  }
+
   const fetchTagData = () => {
     const params = {
       id: '',
@@ -141,10 +195,10 @@ const DocumentProofread: React.FC = () => {
     <div className="document-page">
       <h1>文档校对</h1>
       <div className="btn-box">
-        <Button type="link" icon={<ScissorOutlined />} onClick={() => {}}>
+        <Button type="link" icon={<ScissorOutlined />} onClick={handleScreenShot}>
           截图
         </Button>
-        <Button type="link" icon={<PlusCircleOutlined />} onClick={() => {}}>
+        <Button disabled={!insertEnabled} type="link" icon={<PlusCircleOutlined />} onClick={handleInsertStr}>
           插入切片符
         </Button>
         <Button type="link" icon={<PlayCircleOutlined />} onClick={() => {}}>
@@ -174,6 +228,10 @@ const DocumentProofread: React.FC = () => {
             modelValue={docContent}
             toolbars={['image']}
             noImgZoomIn
+            onChange={(text) => { setDocContent(text) }}
+            ref={editorRef}
+            onFocus={handleMdEditorFocus}
+            onBlur={() => { setInsertEnabled(false); }}
             // onUploadImg={onUploadImg}
           />
         </div>
