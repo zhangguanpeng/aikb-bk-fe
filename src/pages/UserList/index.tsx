@@ -367,7 +367,7 @@ const UserList: React.FC = () => {
               <Input placeholder='请输入用户名' />
             </Form.Item>
             <Form.Item name="password" label="密&nbsp; &nbsp;&nbsp;码" rules={[{ required: true, message: '请输入密码' }]}>
-              <Input placeholder='请输入密码' />
+              <Input.Password placeholder='请输入密码' />
             </Form.Item>
             <Form.Item name="phoneNumber" label="手机号" rules={[{ required: true, message: '请输入手机号' }]}>
               <Input placeholder='请输入手机号' />

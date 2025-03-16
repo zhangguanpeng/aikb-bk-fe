@@ -23,6 +23,10 @@
                 white-space: break-spaces;
                 height: 380px;
                 overflow: auto;
+
+                img {
+                    width: 100%;
+                }
             }
 
             .right {
@@ -53,6 +57,10 @@
                             padding-top: 10px;
                             padding-bottom: 15px;
                             line-height: 22px;
+
+                            img {
+                                width: 100%;
+                            }
                         }
 
                         .text1 {
@@ -119,10 +127,11 @@
 .split-detail-modal {
     .text-content {
         margin-bottom: 10px;
-        overflow-x: auto;
+        overflow-y: auto;
+        max-height: 550px;
 
         img {
-            max-width: 660px;
+            width: 100%;
         }
     }
 

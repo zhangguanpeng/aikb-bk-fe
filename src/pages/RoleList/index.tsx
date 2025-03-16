@@ -31,6 +31,7 @@ const RoleList: React.FC = () => {
   const handleUpdateRole = (action: string, record: any) => {
     const initFormValues = {
       name: action === 'add' ? '' : record.name,
+      code: action === 'add' ? '' : record.code || '',
       type: action === 'add' ? '' : record.type
     };
     formInModal.setFieldsValue(initFormValues);
@@ -122,6 +123,12 @@ const RoleList: React.FC = () => {
       // render: (text) => <a>{text}</a>,
     },
     {
+      title: '角色编码',
+      dataIndex: 'code',
+      key: 'code',
+      width: 100,
+    },
+    {
       title: '角色类型',
       dataIndex: 'type',
       key: 'type',
@@ -164,14 +171,20 @@ const RoleList: React.FC = () => {
 
   const handleAddRoleOk = () => {
     console.log('formInModal value', formInModal.getFieldsValue());
-    const { name, type } = formInModal.getFieldsValue();
+    const { name, code, type } = formInModal.getFieldsValue();
     if (!name) {
       message.warning('请输入有效角色名称');
+      return false;
+    }
+
+    if (!code) {
+      message.warning('请输入有效角色编码');
       return false;
     }
     
     const params = {
       name,
+      code,
       type
     };
 
@@ -293,8 +306,11 @@ const RoleList: React.FC = () => {
             name="control-ref"
             // onFinish={onAddQaFinish}
           >
-            <Form.Item name="name" label="角色名称">
+            <Form.Item name="name" label="角色名称" rules={[{ required: true, message: '角色名称不能为空' }]}>
               <Input placeholder='请输入角色名称' />
+            </Form.Item>
+            <Form.Item name="code" label="角色编码" rules={[{ required: true, message: '角色编码不能为空' }]}>
+              <Input placeholder='请输入角色编码，下划线分隔(如ROLE_STAFF)' />
             </Form.Item>
             <Form.Item name="type" label="角色类型">
               <Select

@@ -7,7 +7,7 @@ import {
   uploadQaImage,
   getTagData
 } from '@/services/aikb/api';
-import { PlusOutlined, UploadOutlined, QuestionCircleOutlined } from '@ant-design/icons';
+import { PlusOutlined, UploadOutlined, QuestionCircleOutlined, ExclamationCircleFilled } from '@ant-design/icons';
 import type { UploadProps } from 'antd';
 import { Button, Form, Input, message, Modal, Space, Table, Upload, Flex, Tag, Select, Tooltip } from 'antd';
 import type { FormInstance } from 'antd/es/form';
@@ -19,6 +19,8 @@ import ReactMarkdown from 'react-markdown';
 import rehypeKatex from 'rehype-katex';
 import remarkMath from 'remark-math';
 import './index.less';
+
+const { confirm } = Modal;
 
 interface DataType {
   key: string;
@@ -172,6 +174,24 @@ const CustomQA: React.FC = () => {
       });
   };
 
+  const showDeleteConfirm = (id: string) => {
+    confirm({
+      title: '确定要删除该用户吗？',
+      icon: <ExclamationCircleFilled />,
+      content: '',
+      okText: '确定',
+      okType: 'danger',
+      cancelText: '取消',
+      onOk() {
+        console.log('OK');
+        handleDeleteQa(id);
+      },
+      onCancel() {
+        console.log('Cancel');
+      },
+    });
+  };
+
   const columns: ColumnsType<DataType> = [
     {
       title: '问题描述',
@@ -237,7 +257,7 @@ const CustomQA: React.FC = () => {
           <a
             style={{ color: 'red' }}
             onClick={() => {
-              handleDeleteQa(record.id);
+              showDeleteConfirm(record.id);
             }}
           >
             删除
@@ -309,6 +329,11 @@ const CustomQA: React.FC = () => {
       answer: splitContent,
       tagIds
     };
+
+    if (!splitContent) {
+      message.warning('请输入合适的问答内容！');
+      return false;
+    }
 
     const { id = '' } = currentRecord;
 
