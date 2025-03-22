@@ -187,6 +187,36 @@ export async function uploadSplitImage(splitId: string, params: any) {
   });
 }
 
+/** 获取pdf markdown GET /aikb/v1/doc/{docId}/page/{pageId}/md */
+export async function getPdfMdData(docId: string, pageId: string | number) {
+  return request(`/aikb/v1/doc/${docId}/page/${pageId}/md`, {
+    method: 'GET',
+    // params: params,
+  });
+}
+
+/** 编辑单个切片 POST /aikb/v1/doc/{docId}/page/{pageId}/md */
+export async function updateSplitContent(docId: string, pageId: any, params: any) {
+  return request(`/aikb/v1/doc/${docId}/page/${pageId}/md`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: params,
+  });
+}
+
+/** 开始切片 POST /aikb/v1/doc/{docId}/split */
+export async function startSplit(docId: string) {
+  return request(`/aikb/v1/doc/${docId}/split`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    // data: params,
+  });
+}
+
 /** 问答对图片上传 POST /aikb/v1/qapair/upload/image */
 export async function uploadQaImage(params: any) {
   return request('/aikb/v1/qapair/upload/image', {

@@ -336,7 +336,7 @@ const DocumentList: React.FC = () => {
             <a
               onClick={() => {
                 // handleDownloadFile(record.id);
-                history.push('/documentproofread', { documentId: record.id })
+                history.push(`/documentproofread?documentId=${record.id}`)
               }}
               style={{ paddingRight: '10px' }}
             >

@@ -50,3 +50,17 @@ export const getCookie = (key: string) => {
   }
   return cookieValue;
 };
+
+export const parseUrlParams = () => {
+  const url = window.location.href;
+  const paramsObj: any = {};
+  const queryString = url.split('?')[1];
+  if (queryString) {
+    const paramPairs = queryString.split('&');
+    paramPairs.forEach(paramPair => {
+      const [key, value] = paramPair.split('=');
+      paramsObj[key] = value ? decodeURIComponent(value) : '';
+    });
+  }
+  return paramsObj;
+}

@@ -1,29 +1,35 @@
-import { getTagData } from '@/services/aikb/api';
 import {
   PlayCircleOutlined,
   PlusCircleOutlined,
   RollbackOutlined,
   ScissorOutlined,
 } from '@ant-design/icons';
+import {
+  getPdfMdData, startSplit, updateSplitContent
+} from '@/services/aikb/api';
 import { Viewer, Worker } from '@react-pdf-viewer/core';
 import { defaultLayoutPlugin, ToolbarProps, ToolbarSlot } from '@react-pdf-viewer/default-layout';
-import { Button } from 'antd';
+import { Button, message, Spin } from 'antd';
 import React, { ReactElement, useEffect, useState, useRef } from 'react';
+import { history } from '@umijs/max';
 import { MdEditor, ExposeParam } from 'md-editor-rt';
 import ScreenShot from "js-web-screen-shot";
+import { parseUrlParams } from '@/utils';
 
 import 'md-editor-rt/lib/style.css';
 import '@react-pdf-viewer/core/lib/styles/index.css';
 import '@react-pdf-viewer/default-layout/lib/styles/index.css';
 import './index.less';
 
+const documentId = parseUrlParams().documentId;
+console.log('documentId', documentId);
+
 const DocumentProofread: React.FC = () => {
-  const [tagData, setTagData] = useState([]);
-  const [docContent, setDocContent] = useState('');
-  const [docContentInsertFrom, setDocContentInsertFrom] = useState(0);
-  const [insertEnabled, setInsertEnabled] = useState(false);
+  const [mdContent, setMdContent] = useState('');
+  // const [docContentInsertFrom, setDocContentInsertFrom] = useState(0);
+  const [insertEnabled, setInsertEnabled] = useState(true);
   const editorRef = useRef<ExposeParam>();
-  // const [currentPdfPage, setCurrentPdfPage] = useState(1);
+  const [currentPdfPage, setCurrentPdfPage] = useState(0);
   // const [pdfPageNumber, setPdfPageNumber] = useState(1);
 
   const handleScreenShot = () => {
@@ -119,13 +125,13 @@ const DocumentProofread: React.FC = () => {
   });
 
   const handleMdEditorFocus = (event: any) => {
-    const insertFrom = event.target?.cmView?.newSel;
-    const selection = window.getSelection();
-    console.log('selection', selection);
-    // console.log('event', event);
+    // const insertFrom = event.target?.cmView?.newSel;
+    // const selection = window.getSelection();
+    // console.log('selection', selection);
+    // console.log('focus event', event);
     // console.log('insertFrom', insertFrom);
-    setDocContentInsertFrom(insertFrom);
-    setInsertEnabled(true);
+    // setDocContentInsertFrom(insertFrom);
+    // setInsertEnabled(true);
   };
 
   const handleInsertStr = () => {
@@ -147,44 +153,58 @@ const DocumentProofread: React.FC = () => {
     });
   }
 
-  const fetchTagData = () => {
-    const params = {
-      id: '',
-      name: '',
-      page: 1,
-      size: 100,
-      sort: 'createdDate,desc',
-    };
-    getTagData(params)
+  const fetchMdData = (page = 0) => {
+    getPdfMdData(documentId, page)
       .then((res) => {
-        console.log('标签列表res', res);
-        const tagData = res.payload.map((item: any) => {
-          const option = {
-            label: item.name,
-            value: item.id,
-          };
-          return option;
-        });
-        setTagData(tagData);
+        console.log('pdf md', res);
+        setMdContent(res.payload);
       })
       .catch((error) => {
         console.log(error);
       });
-  };
+  }
 
   useEffect(() => {
-    fetchTagData();
+    fetchMdData();
   }, []);
 
-  // const handlePageChange = (page: number, pageSize: number) => {
-  //   console.log(page);
-  //   setCurrentPage(page);
-  //   const pageInfo = {
-  //     page,
-  //     size: pageSize,
-  //   };
-  //   fetchDocumentData(pageInfo, null);
-  // };
+  const handlePdfPageChange = (pageChangeEvent: any) => {
+    console.log('pageChangeEvent', pageChangeEvent);
+    setCurrentPdfPage(pageChangeEvent.currentPage);
+    fetchMdData(pageChangeEvent.currentPage);
+  };
+
+  const beginSplit = () => {
+    startSplit(documentId).then((res) => {
+      console.log('pdf md', res);
+      if (res.succeed) {
+        message.success('切片成功');
+      } else {
+        message.error('切片失败');
+      }
+    })
+    .catch((error) => {
+      console.log(error);
+      message.error('切片失败');
+    });
+  }
+
+  const handleMdEditorBlur = () => {
+    const params = {
+      content: mdContent
+    };
+    updateSplitContent(documentId, currentPdfPage, params).then((res) => {
+      if (res.succeed) {
+        message.success('保存成功');
+      } else {
+        message.error('保存失败');
+      }
+    })
+    .catch((error) => {
+      console.log(error);
+      message.error('保存失败');
+    });
+  }
 
   useEffect(() => {
     // renderPdfPage(1);
@@ -201,10 +221,10 @@ const DocumentProofread: React.FC = () => {
         <Button disabled={!insertEnabled} type="link" icon={<PlusCircleOutlined />} onClick={handleInsertStr}>
           插入切片符
         </Button>
-        <Button type="link" icon={<PlayCircleOutlined />} onClick={() => {}}>
+        <Button type="link" icon={<PlayCircleOutlined />} onClick={beginSplit}>
           开始切片
         </Button>
-        <Button type="text" icon={<RollbackOutlined />} onClick={() => {}}>
+        <Button type="text" icon={<RollbackOutlined />} onClick={() => { history.push('/documentlist') }}>
           返回
         </Button>
       </div>
@@ -212,9 +232,10 @@ const DocumentProofread: React.FC = () => {
         <div className="left">
           <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.4.120/legacy/build/pdf.worker.js">
             <Viewer
-              fileUrl="test.pdf"
+              fileUrl={`/aikb/v1/doc/${documentId}/pdf`}
               // initialPage={1}
               plugins={[defaultLayoutPluginInstance]}
+              onPageChange={handlePdfPageChange}
               // defaultScale={SpecialZoomLevel.PageFit}
               // defaultScale={1}
               // plugins={plugins}
@@ -224,14 +245,15 @@ const DocumentProofread: React.FC = () => {
           </Worker>
         </div>
         <div className="right">
+          {/* <Spin className='loading' size="large" fullscreen /> */}
           <MdEditor
-            modelValue={docContent}
+            modelValue={mdContent}
             toolbars={['image']}
             noImgZoomIn
-            onChange={(text) => { setDocContent(text) }}
+            onChange={(text) => { setMdContent(text) }}
             ref={editorRef}
             onFocus={handleMdEditorFocus}
-            onBlur={() => { setInsertEnabled(false); }}
+            onBlur={handleMdEditorBlur}
             // onUploadImg={onUploadImg}
           />
         </div>
